@@ -1,0 +1,97 @@
+Raspbian Buster Lite  2019-09-26
+https://www.raspberrypi.org/downloads/raspbian/
+
+#activate ssh
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+
+#install system components
+sudo apt-get update
+sudo apt-get install python3-pip
+sudo apt-get install python3-picamera
+#sudo apt-get install ntfs-3g
+sudo apt install exfat-fuse
+#sudo apt-get install usbmount
+sudo apt-get install gpac #zum mp4 encoding 600mb
+sudo apt-get install python-serial python3-serial
+
+#debug
+sudo apt-get install minicom
+sudo apt-get install i2c-tools
+
+#pip
+pip3 install pyyaml
+pip3 install pyserial
+
+##WICHITG! in boot cmd serielle frei machen
+sudo nano /boot/cmdline.txt
+#ändern in zB
+#console=tty3 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3
+
+
+#system settings
+echo "enable_uart=1" | sudo tee -a /boot/config.txt
+sudo chmod 666 /dev/serial0
+sudo chmod 666 /dev/tty1
+sudo adduser pi tty
+
+
+
+#rc.local
+echo "dmesg --console-off" | sudo tee /etc/rc.local
+echo "exit 0" | sudo tee -a /etc/rc.local
+
+
+#cron (autostart)
+#(crontab -l 2>/dev/null; echo "*/5 * * * * /path/to/job -with args") | crontab -
+(sudo  -l 2>/dev/null; echo "@reboot chmod 666 /dev/serial0") | sudo crontab -
+(crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py") | crontab -
+
+
+#sonstiges
+sudo mkdir /media/stick
+echo "Kam51" > /home/pi/name.txt
+
+
+#fstab
+echo "/dev/sda1 /media/stick vfat defaults,nofail,umask=000 0 2" | sudo tee -a /etc/fstab
+echo "/dev/sda1 /media/stick ntfs-3g defaults,nofail,users 0 3" | sudo tee -a /etc/fstab
+
+#hw clock auskommentieren
+sudo nano /lib/udev/hwclock-set
+#if [ -e /run/systemd/system ] ; then
+# exit 0
+#fi
+
+#/sbin/hwclock --rtc=$dev --systz --badyear
+#/sbin/hwclock --rtc=$dev --systz
+
+#boot config
+echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
+echo "enable_uart=1" | sudo tee -a /boot/config.txt
+echo "core_freq=250" | sudo tee -a /boot/config.txt
+
+echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
+echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
+
+
+
+
+#ggf dtparam=audio=off 
+#ggf für besseres bild auf den monitoreb
+#sdtv_mode=2 
+#sdtv_aspect=3
+
+
+
+
+#disable bluetooth
+echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
+
+#prepar disable bluetooth
+echo "#dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
+
+
+
+
