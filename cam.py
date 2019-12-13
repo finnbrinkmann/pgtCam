@@ -34,7 +34,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg)
 
         log ("Error: Fehler beim Abfragen vom USB-Speicherplatz " + str(e))
         usage = 'USB-FEHLER'
-        
+
 
     #wait for next 15 min interval
     tm = dt.datetime.now()
@@ -93,11 +93,10 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg)
     except Exception as e: 
         log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
         oldOutputName = ""
-    
-    
-    
+
+
     log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
- 
+
     if powersave: # activate powersave mode if set in conig txt. 
         try:
             os.system('echo 1 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED

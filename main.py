@@ -180,7 +180,17 @@ try:
             fps = int(content["fps"])
         except ValueError as e:
             log("Error: FPS config.txt Wert ist keine Zahl. Benutze Default Wert " + str(e))
-            
+
+    if "rotation" in content:
+        try:
+            rot = int(content["rotation"])
+        if rot != 0 and rot != 90 and rot != 180 and rot != 270:
+            rot = 0
+            log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0")
+        except ValueError as e:
+            log("Error: rotation config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
+
+
     if "resX" in content:            
         try:
             resX = int(content["resX"])
@@ -280,7 +290,7 @@ try:
         log("Error: StromPi hat kein Poweroff signal erhalten " + str(e))
         
     try:
-        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave,  180, str(ipAddress)) #record video until next poweroff time is reached
+        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, 180, str(ipAddress)) #record video until next poweroff time is reached
     except Exception as e:
         log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
         raise
