@@ -13,6 +13,17 @@ from readVoltage import logBatLevel as logBat
 def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg):
 
     
+    
+    #camera is activated
+    camera = picamera.PiCamera()
+    camera.rotation = rot
+    camera.resolution = (resX, resY) #4x3 size 
+    camera.framerate = fps
+    
+    camera.start_preview(alpha = 250) #transparent preview
+    camera.annotate_background = picamera.Color('black')
+    
+    
     log ("INFO: Aufzeichnung wird vorbereitet.")
     batVoltage = logBat()
     
@@ -45,14 +56,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg)
                                  microseconds=tm.microsecond)
 
 
-    #camera is activated
-    camera = picamera.PiCamera()
-    camera.rotation = rot
-    camera.resolution = (resX, resY) #4x3 size 
-    camera.framerate = fps
-    
-    camera.start_preview(alpha = 250) #transparent preview
-    camera.annotate_background = picamera.Color('black')
+
     
     try:
         path = '/media/stick/' + kName + '/'

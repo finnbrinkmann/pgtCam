@@ -97,7 +97,7 @@ try:
             for key, value in content.items():
                 log ('\t' + str(key) + " : " + str(value))
         except Exception as e:
-            log("Error: Inhalt von config.txt fehlerhaft " + str(e))
+            log("Error:                                   von config.txt fehlerhaft " + str(e))
             
     # Default Values
     an = []
@@ -164,18 +164,18 @@ try:
         log("Powersave ist aktiviert")
      
         
-    if "an" in content:    
+    if "an" in content:
         bootedToRecord = False
         for i in content["an"]:
             an.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M')) # parse string to date
     else:
         bootedToRecord = True #if there are no dates defined to start the RPi, we go to record immediately
 
-    if "aus" in content:    
+    if "aus" in content:
         for i in content["aus"]:
             aus.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M'))
             
-    if "fps" in content:    
+    if "fps" in content:
         try:
             fps = int(content["fps"])
         except ValueError as e:
@@ -184,26 +184,26 @@ try:
     if "rotation" in content:
         try:
             rot = int(content["rotation"])
-        if rot != 0 and rot != 90 and rot != 180 and rot != 270:
-            rot = 0
+            if not(rot == 0 or rot == 90 or rot == 180 or rot == 270):
+                rot = 0
             log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0")
         except ValueError as e:
             log("Error: rotation config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
 
 
-    if "resX" in content:            
+    if "resX" in content:
         try:
             resX = int(content["resX"])
         except ValueError as e:
             log("Error: resX config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
 
-    if "resY" in content:            
+    if "resY" in content:
         try:
             resY = int(content["resY"])
         except ValueError as e:
             log("Error: resY config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))   
 
-    if "interval" in content:    
+    if "interval" in content:
         try:
             interval = int(content["interval"])
         except ValueError as e:

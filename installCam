@@ -84,6 +84,8 @@ echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
 #sdtv_aspect=3
 
 
+#set time zone
+sudo timedatectl set-timezone Europe/Berlin
 
 
 #disable bluetooth
@@ -92,6 +94,9 @@ echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
 #prepar disable bluetooth
 echo "#dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
 
-
+#console font tty1 
+sudo nano /etc/default/console-setup
+FONTFACE="Terminus"
+FONTSIZE="16x32"
 
 
