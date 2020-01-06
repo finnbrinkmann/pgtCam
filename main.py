@@ -97,14 +97,14 @@ try:
             for key, value in content.items():
                 log ('\t' + str(key) + " : " + str(value))
         except Exception as e:
-            log("Error:                                   von config.txt fehlerhaft " + str(e))
+            log("Error: Lesen von config.txt fehlerhaft " + str(e))
             
     # Default Values
     an = []
     aus = []
     fps =  24
-    resX = 640
-    resY = 480
+    resX = 704
+    resY = 576
     interval = 15
     powersave = False
     ipAddress = ''
@@ -114,12 +114,12 @@ try:
         try:
             wlan = str(content["wlan"])
             if content["wlan-pw"]: #need wifi network and password (pw in plain text)
-        
+
                 try:
                     wlanPW = str(content["wlan-pw"])
                 except Exception as e:
                     log("Error: WLAN Passwort nicht erkannt. " + str(e))
-                try:    
+                try:
                     os.system('sudo sed -i \'s/ssid=".*"/ssid="' + wlan + '"/g\' /etc/wpa_supplicant/wpa_supplicant.conf')# replace string in wifi config file
                     os.system('sudo sed -i \'s/psk=".*"/psk="' + wlanPW + '"/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
                     os.system('sudo sed -i \'s/#*dtoverlay=pi3-disable-wifi/#dtoverlay=pi3-disable-wifi/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
@@ -189,20 +189,20 @@ try:
             log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0")
         except ValueError as e:
             log("Error: rotation config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
-
-
+    
+    
     if "resX" in content:
         try:
             resX = int(content["resX"])
         except ValueError as e:
             log("Error: resX config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
-
+    
     if "resY" in content:
         try:
             resY = int(content["resY"])
         except ValueError as e:
             log("Error: resY config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))   
-
+    
     if "interval" in content:
         try:
             interval = int(content["interval"])
@@ -315,7 +315,7 @@ except Exception as e:
     log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
     
     try:
-        camera = picamera.PiCamera()
+        camera = picamera.PiCamera() # hardcoded failsafe
         camera.resolution = (640, 480) #4x3 size 
         camera.framerate = 10
         
