@@ -17,6 +17,22 @@ from strompi_config import writeSP
 
 import cam
 
+def readConfig(filename):
+    try:
+        configFile = open(filename, "r")
+        log ("INFO: " + str (filename) + "geöffnet")
+        
+    except Exception as e:
+        log ("ERROR: Kann Datei nicht lesen /media/stick/config.txt. Datei vorhanden? " + str(e))
+    try:
+        content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
+    except Exception as e:
+        log("ERROR: Fehler in lesen der Config Datei! " + str(e))
+        content = {}    
+
+
+
+
 try:
 
 
@@ -84,7 +100,7 @@ try:
     try:
         serial_port.open()
     except Exception as e:
-        log("ERROR: Error: Fehler in der seriellen Kommunikation. " + str(e))
+        log("ERROR: Fehler in der seriellen Kommunikation. " + str(e))
 
     breakS = 0.1
     breakL = 0.2
@@ -97,7 +113,7 @@ try:
             for key, value in content.items():
                 log ('\t' + str(key) + " : " + str(value))
         except Exception as e:
-            log("Error: Lesen von config.txt fehlerhaft " + str(e))
+            log("ERROR: Lesen von config.txt fehlerhaft " + str(e))
             
     # Default Values
     an = []
