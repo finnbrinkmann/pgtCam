@@ -38,7 +38,8 @@ try:
     interval = 15
     powersave = False
     ipAddress = ''
-
+    stromPi = False
+    kName = "KamX"
 
 
     try:
@@ -58,14 +59,14 @@ try:
         log("ERROR: SPi Uhr konnte nicht Sync werden. " + str(e))
 
     configFile = "/home/pi/defaultConfig.txt"
-    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress)
+    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName)
 
     while True: #loopbreak until a stick is found
         
         if os.path.ismount("/media/stick/"):
             try:
                 configFile = "/media/stick/config.txt"
-                an, aus, fps, rot, resX, resY, interval, powersave, ipAddress = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress)
+                an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName)
                 
             except Exception as e:
                 log ("ERROR: Kann Datei nicht lesen /media/stick/config.txt. Datei vorhanden? " + str(e))
@@ -171,7 +172,7 @@ try:
             
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, 180, str(ipAddress))
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, 180, str(ipAddress), stromPi, kName)
             serial_port.write(str.encode('poweroff'))
             sleep(breakS)
             serial_port.write(str.encode('\x0D'))
@@ -192,7 +193,7 @@ try:
         log("Error: StromPi hat kein Poweroff signal erhalten " + str(e))
         
     try:
-        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, 180, str(ipAddress)) #record video until next poweroff time is reached
+        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, 180, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
     except Exception as e:
         log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
         raise

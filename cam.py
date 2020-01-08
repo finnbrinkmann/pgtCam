@@ -10,7 +10,7 @@ from log import log as log
 from readVoltage import logBatLevel as logBat
 
 
-def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg):
+def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName):
 
     
     
@@ -27,14 +27,6 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg)
     log ("INFO: Aufzeichnung wird vorbereitet.")
     batVoltage = logBat()
     
-    try:
-        filename = "/home/pi/name.txt"
-        file = open(filename, 'r')
-        line = file.readline()
-        kName = line.replace("\n","")[:6] # get rid of new lines und limit the input to 6 letters  Kam999
-    except Exception as e:
-        log ("Error: Datein mit Kameranamen nicht gefunden (~/name.txt) " + str(e))
-        kName = 'KamX'
 
     try:
         diskFree = int(os.popen("df --output=avail /dev/sda1 |tail -n 1").read().strip()) #get harddisk free space. 

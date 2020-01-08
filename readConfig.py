@@ -5,7 +5,7 @@ import os
 from log import log as log
 
 
-def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress):
+def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName):
 
     try:
         configFile = open(filename, "r")
@@ -129,5 +129,15 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         except ValueError as e:
             log("Error: Interval config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))           
 
+    if "stromPi" in content:
+        
+        stromPi = True
+        log("StromPi ist aktiviert")
 
-    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress
+    if "name" in content:
+        try:
+            kName = content["name"]
+        except Exception as e:
+            log("Error: name config.txt " + str(e))
+
+    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName
