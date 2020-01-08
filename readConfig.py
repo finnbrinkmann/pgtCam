@@ -1,60 +1,133 @@
-# read config file and write data to strompi on seriel interface
-from datetime import datetime
+import datetime
+import yaml
+#import types
+import os
 from log import log as log
 
-def readConfig():
 
-    startStr = "01.01.190000:00"
-    endStr = "01.01.190000:00"
-    
-    log ("readConfig")
-    filename = "config.txt"
-    file = open(filename, 'r')
+def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress):
 
-    startTime  = []
-    endTime = []
-    
-
-    for line in file:
-    
-        log (line)
-        #log (type(line))
-        line = line.replace(" ","") #remove spaces tabs and newlines
-        line = line.replace("\t","")
-        line = line.replace("\n","")
-        #log (len(line))
+    try:
+        configFile = open(filename, "r")
+        log ("INFO: " + str (filename) + "geöffnet")
         
-        if len(line)> 0 :
-            if line[0] == "#":#skip if it is a comment
-                continue
-            elif line.strip():    
+    except Exception as e:
+        log ("ERROR: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
+    try:
+        content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
+    except Exception as e:
+        log("ERROR: Fehler in lesen der Config Datei! " + str(e))
+        content = {}    
 
-                data = line.split("=")
-                log(data)
-                
-                if data[0] == "on":
-                    log ("on is true")
-                    startTime.append( datetime.strptime(data[1], "%d.%m.%Y%H:%M")) #create vector of boot times
+
+    #log config file
+    if not content:
+        try:
+            for key, value in content.items():
+                log ('\t' + str(key) + " : " + str(value))
+        except Exception as e:
+            log("ERROR: Lesen von config.txt fehlerhaft " + str(e))
+
+
+    # check if parameters are set in config file. Problem is, that we have to reboot the RPi in order wifi changes to become active. 
+    if "wlan" in content:
+        try:
+            wlan = str(content["wlan"])
+            if content["wlan-pw"]: #need wifi network and password (pw in plain text)
+
+                try:
+                    wlanPW = str(content["wlan-pw"])
+                except Exception as e:
+                    log("Error: WLAN Passwort nicht erkannt. " + str(e))
+                try:
+                    os.system('sudo sed -i \'s/ssid=".*"/ssid="' + wlan + '"/g\' /etc/wpa_supplicant/wpa_supplicant.conf')# replace string in wifi config file
+                    os.system('sudo sed -i \'s/psk=".*"/psk="' + wlanPW + '"/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
+                    os.system('sudo sed -i \'s/#*dtoverlay=pi3-disable-wifi/#dtoverlay=pi3-disable-wifi/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
+                    log("INFO: WLAN + Passwort eingetragen: " + wlan) 
                     
-                elif data[0] == "off":
-                    log ("off is true")
-                    endTime.append( datetime.strptime(data[1], "%d.%m.%Y%H:%M")) #create vector of shutdown times
+                    wifiActive = os.system('ifconfig wlan0') # get wifi info if it is active (seems not to work that good)
+                    log("INFO: WiFi-Status: " + str(wifiActive))
+                    
+                    try:#insteat ping googles DNS server to see if we have internet connection
+                        soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        soc.connect(("8.8.8.8", 80))
+                        ipAddress = soc.getsockname()[0]
+                        log("INFO: IP-Address: " + str(ipAddress))
+                        soc.close()
+                    except Exception as e:
+                        log("WARNING: WLAN noch inaktiv. Reboot " + str(e))
+                    if wifiActive > 0:
+                        log("INFO: WLAN wurde aktiviert. Neustart wird durchgeführt")#if wifi  tag is set but wifi is not active, we have to assume that wifi was set right now and we have to reboot. (this is dangerous since we might end up in a reboot loop)
+                        #os.system('sudo reboot')
+                    
+                    
+                except Exception as e:
+                    log("ERROR: WLAN Einstellungen wurden nicht übernommen. " + str(e))
+                
+        except Exception as e:
+            log("Error: WLAN Namen nicht erkannt. " + str(e))
 
 
+    else:
+        try: # TODO try if wifi is active, if so reboot 
+            os.system('sudo sed -i \'s/ssid=".*"/ssid=""/g\' /etc/wpa_supplicant/wpa_supplicant.conf') # if wifi tag is not set. remove wifi data from config file
+            os.system('sudo sed -i \'s/psk=".*"/psk=""/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
+            os.system('sudo sed -i \'s/#*dtoverlay=pi3-disable-wifi/dtoverlay=pi3-disable-wifi/g\' /etc/wpa_supplicant/wpa_supplicant.conf')
+            log("INFO: WLAN deaktiviert")
+        except Exception as e:
+            log("WARNING: WLAN konnte nicht zurückgesetzt werden und ist möglicherweise aktivert. " + str(e))
+     
 
-    log ("länge" + str(len(startTime)))
+    if "powersave" in content:
+        
+        powersave = True
+        log("Powersave ist aktiviert")
+     
+        
+    if "an" in content:
+        bootedToRecord = False
+        for i in content["an"]:
+            an.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M')) # parse string to date
+    else:
+        bootedToRecord = True #if there are no dates defined to start the RPi, we go to record immediately
+
+    if "aus" in content:
+        for i in content["aus"]:
+            aus.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M'))
+            
+    if "fps" in content:
+        try:
+            fps = int(content["fps"])
+        except ValueError as e:
+            log("Error: FPS config.txt Wert ist keine Zahl. Benutze Default Wert " + str(e))
+
+    if "rotation" in content:
+        try:
+            rot = int(content["rotation"])
+            if not(rot == 0 or rot == 90 or rot == 180 or rot == 270):
+                rot = 0
+            log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0")
+        except ValueError as e:
+            log("Error: rotation config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
     
-    startTime.sort()# earlyest date at first
     
-    for times in startTime:
-       
-        log (str(times.day) + " " + str(times.month) + " " + str(times.year) + " " + str(times.hour) + " " + str(times.minute ))
+    if "resX" in content:
+        try:
+            resX = int(content["resX"])
+        except ValueError as e:
+            log("Error: resX config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
+    
+    if "resY" in content:
+        try:
+            resY = int(content["resY"])
+        except ValueError as e:
+            log("Error: resY config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))   
+    
+    if "interval" in content:
+        try:
+            interval = int(content["interval"])
+        except ValueError as e:
+            log("Error: Interval config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))           
 
-        if times < datetime.now():
-            log ("Warning: Start liegt in der Vergangenheit")
-        else:
-            #programm strom pi on this date
 
-log ("start")
-readConfig()
-log("end")
+    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress

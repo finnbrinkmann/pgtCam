@@ -114,7 +114,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg)
 
     while dt.datetime.now() < powerOffTime: # until time off date is reached
 
-        batVoltage = logBat() # log the Battery voltage
+        batVoltage = logBat() # log the Battery voltage #braucht das sehr lange wenn kein strom pi angeschlossen ist?!
         end = end + intervalLength * 60 # add 15 min * 60 sec/min
         
         
