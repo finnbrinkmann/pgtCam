@@ -99,4 +99,5 @@ sudo nano /etc/default/console-setup
 FONTFACE="Terminus"
 FONTSIZE="16x32"
 
-
+#debug
+sudo apt-get install minicom

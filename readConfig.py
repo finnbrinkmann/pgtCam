@@ -55,9 +55,9 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
                         log("INFO: IP-Address: " + str(ipAddress))
                         soc.close()
                     except Exception as e:
-                        log("WARNING: WLAN noch inaktiv. Reboot " + str(e))
+                        log("WARNING: WLAN noch inaktiv." + str(e))
                     if wifiActive > 0:
-                        log("INFO: WLAN wurde aktiviert. Neustart wird durchgeführt")#if wifi  tag is set but wifi is not active, we have to assume that wifi was set right now and we have to reboot. (this is dangerous since we might end up in a reboot loop)
+                        log("INFO: WLAN wurde aktiviert.Neustart könnte erforderlich sein")#if wifi  tag is set but wifi is not active, we have to assume that wifi was set right now and we have to reboot. (this is dangerous since we might end up in a reboot loop)
                         #os.system('sudo reboot')
                     
                     
@@ -76,13 +76,14 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
             log("INFO: WLAN deaktiviert")
         except Exception as e:
             log("WARNING: WLAN konnte nicht zurückgesetzt werden und ist möglicherweise aktivert. " + str(e))
-     
+
 
     if "powersave" in content:
-        
-        powersave = True
-        log("Powersave ist aktiviert")
-     
+        try:
+            if int(content["powersave"]) == 1:
+                powersave = True
+        except Exception as e:
+            log("Error: powersave config.txt " + str(e))
         
     if "an" in content:
         bootedToRecord = False
@@ -106,7 +107,7 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
             rot = int(content["rotation"])
             if not(rot == 0 or rot == 90 or rot == 180 or rot == 270):
                 rot = 0
-            log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0")
+                log("Error: rotation ist ungleich 0/90/180/270! Setze Rotation auf 0. rot: " + str(rot))
         except ValueError as e:
             log("Error: rotation config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))
     
@@ -130,13 +131,17 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
             log("Error: Interval config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))           
 
     if "stromPi" in content:
+        try:
+            if int(content["stromPi"]) == 1:
+                stromPi = True
+        except Exception as e:
+            log("Error: stromPi config.txt " + str(e))
         
-        stromPi = True
-        log("StromPi ist aktiviert")
 
     if "name" in content:
         try:
             kName = content["name"]
+            
         except Exception as e:
             log("Error: name config.txt " + str(e))
 

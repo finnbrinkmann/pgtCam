@@ -58,8 +58,8 @@ def syncClock():
                 log("INFO: StromPi Datum: " + str(strompi_day) + "." + str(strompi_month) + "." + str(strompi_year))
                 break            
                 
-            except:
-                log ("ERROR: Fehler beim Syncronisieren des Datums. Versuch: " + str(i) + " " + str(data))
+            except Exception as e:
+                log ("ERROR: Fehler beim Syncronisieren des Datums. Versuch: " + str(i) + " " + str(data) + " " + str(e))
                 i = i + 1
                 continue
 
@@ -79,9 +79,9 @@ def syncClock():
                 log("INFO: StromPi Zeit: " + str(strompi_hour) + ":" + str(strompi_min) + ":" + str(strompi_sec))
                 break
 
-            except:
+            except Exception as e:
                 
-                log ("ERROR: Fehler beim Syncronisieren der Zeit. Versuch: " + str(i) + " " + str(data))
+                log ("ERROR: Fehler beim Syncronisieren der Zeit. Versuch: " + str(i) + " " + str(data)+ " " + str(e))
                 i = i + 1
                 continue
 
@@ -113,8 +113,8 @@ def syncClock():
         log('ERROR: in sync time! OverflowError')
         log (data)
         pass
-    except:
-        log ('ERROR: Unexpected error in Sycn Time.')
+    except Exception as e:
+        log ('ERROR: Unexpected error in Sycn Time.' + str(e))
         pass
         
     serial_port.close()

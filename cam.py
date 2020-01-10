@@ -22,11 +22,11 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     
     camera.start_preview(alpha = 250) #transparent preview
     camera.annotate_background = picamera.Color('black')
-    
+    camera.annotate_text = "Abfrage der Batteriespannung..."
     
     log ("INFO: Aufzeichnung wird vorbereitet.")
     batVoltage = logBat()
-    
+    camera.annotate_text = "Aufzeichnung wird vorbereitet..."
 
     try:
         diskFree = int(os.popen("df --output=avail /dev/sda1 |tail -n 1").read().strip()) #get harddisk free space. 
@@ -60,8 +60,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     try:
         camera.start_recording(outputName  + '.h264')
     except Exception as e:
-        print ("ERROR: Aufnahmefehler. USB-Stick?! Reboot? " + str(e))
-        #os.system('sudo reboot')
+        print ("ERROR: Aufnahmefehler. USB-Stick noch vorhanden?!" + str(e))
+        
         
     #loop until next 00/15/30/45min is reached
     while True:
@@ -79,12 +79,12 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     end = time.time() # seconds since 1970
 
     log ("INFO: Start recording now")
-    oldOutputName = outputName
+    oldOutputName = outputName #remember old file in order to encode and delete
     outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
-    camera.split_recording(outputName  + '.h264') 
+    camera.split_recording(outputName  + '.h264') # create a new file every intervalLength (15) min
     
     try:
-        subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName + '.h264', oldOutputName + '.mp4']) # convert h264 to mp4 format
+        subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName + '.h264', oldOutputName + '.mp4']) # convert h264 to mp4 format. 
         log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
     except Exception as e: 
         log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
