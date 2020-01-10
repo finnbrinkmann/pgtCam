@@ -58,6 +58,11 @@ try:
 
     configFile = "/home/pi/defaultConfig.txt"
     an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName)
+    
+    try:
+        camera.rotation = rot
+    except Exception as e:
+        log("ERROR: konnte camera nicht drehen. " + str(e))
 
     while True: #loopbreak until a stick is found
         
@@ -202,7 +207,7 @@ try:
         log("Error: Konnte Kamera Obj nicht schließen " + str(e))
         
     try:
-        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, 180, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
+        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
     except Exception as e:
         log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
         raise # fire main exception to reboot
