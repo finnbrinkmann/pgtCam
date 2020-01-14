@@ -95,7 +95,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 
     if powersave: # activate powersave mode if set in conig txt. 
         try:
-            os.system('echo 1 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED
+            os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED
+            os.system('echo 0 | sudo tee /sys/class/leds/led1/brightness') #deactivate green RPi onboard LED
             os.system('/usr/bin/tvservice -o') # deactivate display ports
             log("INFO: POWERSAVE on")
         except Exception as e:
@@ -104,6 +105,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     #camera.wait_recording(1)
     log("INFO: Aufzeichnen läuft bis: " + str(powerOffTime))
 
+############### Record loop
     while dt.datetime.now() < powerOffTime: # until time off date is reached
 
         batVoltage = logBat() # log the Battery voltage #braucht das sehr lange wenn kein strom pi angeschlossen ist?!

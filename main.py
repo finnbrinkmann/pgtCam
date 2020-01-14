@@ -42,6 +42,8 @@ try:
     ipAddress = ''
     stromPi = False
     kName = "KamX"
+    
+    bootedToRecord = True
 
 
     try:
@@ -133,6 +135,7 @@ try:
         aus.reverse()
 
         for i in an[::-1]: #loop in reverse order to del items correctly
+            bootedToRecord = False # if there are programmed times, set rec to false.
             if i > datetime.datetime.now() + datetime.timedelta(minutes=5):
                 log("INFO: Datum liegt in der Zukunft " + str (i))
             else:
@@ -180,22 +183,7 @@ try:
         else:
             log ("INFO: Keine weiteren Ausschaltzeitpunkte!")
             
-        if not bootedToRecord: # record for 15 min to set up the camera and then poweroff
 
-            try:
-                
-                nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
-                log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-                cam.recVideo(nextPoweroff, fps, resX, resY, interval, 180, str(ipAddress), stromPi, kName)
-                serial_port.write(str.encode('poweroff'))
-                sleep(breakS)
-                serial_port.write(str.encode('\x0D'))
-                sleep(breakL)
-                os.system('sudo shutdown +0')
-                exit()
-            except Exception as e:
-                log("Error: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
-            
             
         if aus:
             #get time of next shutdown
@@ -205,16 +193,36 @@ try:
         camera.close() #close preview camera
     except Exception as e:
         log("Error: Konnte Kamera Obj nicht schließen " + str(e))
-        
-    try:
-        cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
-    except Exception as e:
-        log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
-        raise # fire main exception to reboot
-        
+
+
+    if bootedToRecord: # record for 15 min to set up the camera and then poweroff
+
+        try:
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
+        except Exception as e:
+            log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
+            raise # fire main exception to reboot
+
+    else:
+        try:
+            
+            nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
+            log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, rot, str(ipAddress), stromPi, kName)
+            #if stromPi:
+            #    serial_port.write(str.encode('poweroff'))
+            #    sleep(breakS)
+            #    serial_port.write(str.encode('\x0D'))
+            #    sleep(breakL)
+            #log("Runterfahren")
+            #os.system('sudo shutdown +0')
+            #exit()
+        except Exception as e:
+            log("Error: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
+
 
     #shutdown
-    log("END: shutting down now")
+    log("ENDE: shutting down now")
     
     if stromPi: # if stromPi is used, shut it down first
         try:

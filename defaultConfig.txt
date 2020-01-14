@@ -12,9 +12,9 @@ interval: 15
 
 rotation: 180
 
-stromPi: 1
+#stromPi: 1
 
 name: Kam99
 
-#powersave: 1
+powersave: 1
 
