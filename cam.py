@@ -27,6 +27,9 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     log ("INFO: Aufzeichnung wird vorbereitet.")
     batVoltage = logBat()
     camera.annotate_text = "Aufzeichnung wird vorbereitet..."
+    
+    outputName = ""
+    oldOutputName = ""
 
     try:
         diskFree = int(os.popen("df --output=avail /dev/sda1 |tail -n 1").read().strip()) #get harddisk free space. 
@@ -43,13 +46,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     tm = dt.datetime.now()
 
 
-    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-15,
-                                 seconds=tm.second,
-                                 microseconds=tm.microsecond)
+    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
 
-
-
-    
     try:
         path = '/media/stick/' + kName + '/'
         os.makedirs(path, exist_ok=True) # create folder if does not exist
@@ -73,12 +71,9 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         if tm < dt.datetime.now(): 
             break
 
-
-
-
     end = time.time() # seconds since 1970
 
-    log ("INFO: Start recording now")
+    log ("INFO: Starte die Aufnahme")
     oldOutputName = outputName #remember old file in order to encode and delete
     outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
     camera.split_recording(outputName  + '.h264') # create a new file every intervalLength (15) min
@@ -88,10 +83,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
     except Exception as e: 
         log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
-        oldOutputName = ""
-
-
-    log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+        oldOutputName = "" # prevent deletion of file
 
     if powersave: # activate powersave mode if set in conig txt. 
         try:

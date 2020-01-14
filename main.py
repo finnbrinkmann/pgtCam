@@ -43,6 +43,7 @@ try:
     
     bootedToRecord = True
 
+    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
 
     try:
         camera = picamera.PiCamera()
@@ -66,9 +67,10 @@ try:
 
     while True: #loopbreak until a stick is found
         
-        if os.path.ismount("/media/stick/"):
+        i = 1
+        if os.path.ismount(paths[i]):
             try:
-                configFile = "/media/stick/config.txt"
+                configFile = paths[i] + "config.txt"
                 an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName)
                 
             except Exception as e:
