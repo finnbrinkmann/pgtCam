@@ -19,8 +19,6 @@ from readConfig import readConfig as readConfig
 import cam
 
 
-
-
 try:
 
 
@@ -135,7 +133,7 @@ try:
         aus.reverse()
 
         for i in an[::-1]: #loop in reverse order to del items correctly
-            bootedToRecord = False # if there are programmed times, set rec to false.
+            bootedToRecord = False
             if i > datetime.datetime.now() + datetime.timedelta(minutes=5):
                 log("INFO: Datum liegt in der Zukunft " + str (i))
             else:
@@ -208,7 +206,7 @@ try:
             
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, rot, str(ipAddress), stromPi, kName)
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName)
             #if stromPi:
             #    serial_port.write(str.encode('poweroff'))
             #    sleep(breakS)
@@ -219,6 +217,7 @@ try:
             #exit()
         except Exception as e:
             log("Error: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
+            raise
 
 
     #shutdown

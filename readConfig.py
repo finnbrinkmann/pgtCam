@@ -86,11 +86,9 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
             log("Error: powersave config.txt " + str(e))
         
     if "an" in content:
-        bootedToRecord = False
         for i in content["an"]:
             an.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M')) # parse string to date
-    else:
-        bootedToRecord = True #if there are no dates defined to start the RPi, we go to record immediately
+
 
     if "aus" in content:
         for i in content["aus"]:
