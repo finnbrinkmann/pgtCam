@@ -10,11 +10,12 @@ resY: 576
 
 interval: 15
 
-rotation: 180
+#Cam 2020: rot 180
+rotation: 0
 
-#stromPi: 1
+stromPi: 0
 
-name: Kam99
+name: Kam05
 
-powersave: 1
+powersave: 0
 

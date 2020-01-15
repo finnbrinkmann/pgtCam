@@ -5,10 +5,13 @@ import os
 
 def log(s):
 
+    
+    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
+
     try:
         s = str(s)
         print(s)
-    except:
+    except Exception as e:
         s = "Error: Can not cast log data to string"
         print(s)
                 
@@ -26,38 +29,44 @@ def log(s):
                 pointer = pointer + 40 - 4
             
         f.close()
-    except:
-        print ("ERROR: Could not open file: /dev/tty1")
+    except Exception as e:
+        print ("ERROR: Could not open file: /dev/tty1 " + str(e))
 
+    for x in paths:
+        if os.path.ismount(x):
 
-    try:
-        f = open('/media/stick/log.txt', 'a')
-        f.write(s + '\n')
-        f.close()
-    except:
-        print ("ERROR: Could not open file: /media/stick/log.txt")
-        
-        
+            try:
+                f = open(x + 'log.txt', 'a')
+                f.write(s + '\n')
+                f.close()
+            except Exception as e:
+                print ("ERROR: Could not open file: " + x + "log.txt " + str(e))
+                
+            
 
 def logAkku(s):
+
+    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
 
     try:
         s = str(s)
         print("Akkuspannung: " + s + "V")
-    except:
-        print("Error: Can not cast log data to string")
+    except Exception as e:
+        print("Error: Can not cast log data to string " + str(e))
                 
     try:
         f = open('/dev/tty1', 'w')
         f.write(s + 'V\n')
         f.close()
-    except:
-        print ("ERROR: Could not open file: /dev/tty1")
+    except Exception as e:
+        print ("ERROR: Could not open file: /dev/tty1 " + str(e))
 
-    try:
-        f = open('/media/stick/logAkku.txt', 'a')
-        f.write(s + '\n')
-        f.close()
-    except:
-        print ("ERROR: Could not open file: /media/stick/logAkku.txt")
+    for x in paths:
+        if os.path.ismount(x):
+            try:
+                f = open(x + 'akkuLog.txt', 'a')
+                f.write(s + '\n')
+                f.close()
+            except Exception as e:
+                print ("ERROR: Could not open file: " + x + "akkuLog.txt " + str(e))
         

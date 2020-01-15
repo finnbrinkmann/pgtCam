@@ -44,6 +44,7 @@ try:
     bootedToRecord = True
 
     paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
+    path = ""
 
     try:
         camera = picamera.PiCamera()
@@ -65,24 +66,28 @@ try:
     except Exception as e:
         log("ERROR: konnte camera nicht drehen. " + str(e))
 
-    while True: #loopbreak until a stick is found
+    stickFound = False
+    while not stickFound: #loopbreak until a stick is found
         
-        i = 1
-        if os.path.ismount(paths[i]):
-            try:
-                configFile = paths[i] + "config.txt"
-                an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName)
-                
-            except Exception as e:
-                log ("ERROR: Kann Datei nicht lesen /media/stick/config.txt. Datei vorhanden? " + str(e))
-                
-            break
-        else:
+        for x in paths:
+            
+            if os.path.ismount(x):
+                log("INFO: Mountpunkt ist: " + str(x))
+                path = x
+                try:
+                    configFile = str(x) + "config.txt"
+                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName)
+                    
+                except Exception as e:
+                    log ("WARNING: Kann Datei nicht lesen " + x +"config.txt. Datei vorhanden? " + str(e))
+                    
+                stickFound = True
+        if not stickFound:
             camera.annotate_text = "KEIN USB-STICK GEFUNDEN"
             sleep(5)
             log ("INFO: Kein USB-Stick gefunden")
             #exit()
-            
+                
             
     log ("INFO: FPS: " + str(fps))
     log ("INFO: rot: " + str(rot))
@@ -198,7 +203,7 @@ try:
     if bootedToRecord: # record for 15 min to set up the camera and then poweroff
 
         try:
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName) #record video until next poweroff time is reached
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path) #record video until next poweroff time is reached
         except Exception as e:
             log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
             raise # fire main exception to reboot
@@ -208,7 +213,7 @@ try:
             
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName)
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path)
             #if stromPi:
             #    serial_port.write(str.encode('poweroff'))
             #    sleep(breakS)

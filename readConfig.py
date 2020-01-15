@@ -7,21 +7,26 @@ from log import log as log
 
 def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName):
 
+
+    configFile = ""
+    content = {}
+
+
     try:
         configFile = open(filename, "r")
-        log ("INFO: " + str (filename) + "geöffnet")
+        log ("INFO: " + str (filename) + " geöffnet")
         
     except Exception as e:
-        log ("ERROR: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
+        log ("WARNING: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
     try:
         content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
     except Exception as e:
         log("ERROR: Fehler in lesen der Config Datei! " + str(e))
-        content = {}    
+        raise
 
 
     #log config file
-    if not content:
+    if content:
         try:
             for key, value in content.items():
                 log ('\t' + str(key) + " : " + str(value))

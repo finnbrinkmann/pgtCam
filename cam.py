@@ -10,7 +10,7 @@ from log import log as log
 from readVoltage import logBatLevel as logBat
 
 
-def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName):
+def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path):
 
     
     
@@ -22,10 +22,16 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     
     camera.start_preview(alpha = 250) #transparent preview
     camera.annotate_background = picamera.Color('black')
-    camera.annotate_text = "Abfrage der Batteriespannung..."
     
     log ("INFO: Aufzeichnung wird vorbereitet.")
-    batVoltage = logBat()
+    batVoltageString = ""
+    #log (str(stromPi))
+    
+    if stromPi:
+        camera.annotate_text = "Abfrage der Batteriespannung..."
+        batVoltage = logBat()
+        batVoltageString = str(batVoltage) + "V"
+    
     camera.annotate_text = "Aufzeichnung wird vorbereitet..."
     
     outputName = ""
@@ -49,7 +55,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
 
     try:
-        path = '/media/stick/' + kName + '/'
+        path = path + kName + '/'
         os.makedirs(path, exist_ok=True) # create folder if does not exist
         outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M') + 'preview'
     except Exception as e:
@@ -66,7 +72,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         time.sleep(1)
         fileSize = os.path.getsize(outputName + '.h264') % 100 #to limit output to 2 numbers
         #log("filesize = " + str(fileSize))
-        annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + ' ' + usage + ' ' + batVoltage + 'V ' + str(fileSize) + ' ' + msg
+        annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + ' ' + usage + ' ' + batVoltageString + str(fileSize) + ' ' + msg
         camera.annotate_text = annotation
         if tm < dt.datetime.now(): 
             break
@@ -100,7 +106,10 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 ############### Record loop
     while dt.datetime.now() < powerOffTime: # until time off date is reached
 
-        batVoltage = logBat() # log the Battery voltage #braucht das sehr lange wenn kein strom pi angeschlossen ist?!
+        if stromPi:
+            batVoltage = logBat() # log the Battery voltage #braucht das sehr lange wenn kein strom pi angeschlossen ist?!
+            batVoltageString = str(batVoltage) + "V"
+            
         end = end + intervalLength * 60 # add 15 min * 60 sec/min
         
         
@@ -112,10 +121,12 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         except Exception as e:
             log("WARNING: Fehler in Speicherplatzabfrage" + str(e))
             usage = "?%"
+            #raise
+            #a reboot might be necessary
             
         while time.time() < end : # while 15min (or intervall length)
             
-            annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + " " + usage + ' ' + batVoltage + 'V' # calc annotation text (black bar)
+            annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + " " + usage + ' ' + batVoltageString # calc annotation text (black bar)
             camera.annotate_text = annotation
             camera.wait_recording(1) #sleep a sec # 
   

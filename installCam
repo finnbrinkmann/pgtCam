@@ -8,13 +8,15 @@ sudo systemctl start ssh
 
 #install system components
 sudo apt-get update
-sudo apt-get install python3-pip
+sudo apt-get install python3-pip 
 sudo apt-get install python3-picamera
 #sudo apt-get install ntfs-3g
 sudo apt install exfat-fuse
 #sudo apt-get install usbmount
 sudo apt-get install gpac #zum mp4 encoding 600mb
 sudo apt-get install python-serial python3-serial
+
+sudo apt-get install -y python3-pip python3-picamera exfat-fuse gpac python-serial python3-serial
 
 #debug
 sudo apt-get install minicom
@@ -24,21 +26,25 @@ sudo apt-get install i2c-tools
 pip3 install pyyaml
 pip3 install pyserial
 
+pip3 install pyyaml pyserial
+
+
 ##WICHITG! in boot cmd serielle frei machen
 sudo nano /boot/cmdline.txt
 #ändern in zB
 #console=tty3 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3
-
+#console=tty3 root=/dev/mmcblk0p1 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3
+echo "console=tty3 root=/dev/mmcblk0p1 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3" | sudo tee /boot/cmdline.txt
 
 #system settings
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
-sudo chmod 666 /dev/serial0
-sudo chmod 666 /dev/tty1
-sudo adduser pi tty
+#sudo chmod 666 /dev/serial0
+#sudo chmod 666 /dev/tty1
+#sudo adduser pi tty
 
 
 
-#rc.local
+#rc.local #needed?
 echo "dmesg --console-off" | sudo tee /etc/rc.local
 echo "exit 0" | sudo tee -a /etc/rc.local
 
@@ -46,17 +52,20 @@ echo "exit 0" | sudo tee -a /etc/rc.local
 #cron (autostart)
 #(crontab -l 2>/dev/null; echo "*/5 * * * * /path/to/job -with args") | crontab -
 (sudo  -l 2>/dev/null; echo "@reboot chmod 666 /dev/serial0") | sudo crontab -
+(sudo  -l 2>/dev/null; echo "@reboot chmod 666 /dev/tty1") | sudo crontab -
 (crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py") | crontab -
 
 
 #sonstiges
-sudo mkdir /media/stick
-echo "Kam51" > /home/pi/name.txt
+sudo mkdir /media/vFat 
+sudo mkdir /media/ntfs 
+sudo mkdir /media/exFat
 
 
 #fstab
-echo "/dev/sda1 /media/stick vfat defaults,nofail,umask=000 0 2" | sudo tee -a /etc/fstab
-echo "/dev/sda1 /media/stick ntfs-3g defaults,nofail,users 0 3" | sudo tee -a /etc/fstab
+echo "/dev/sda1 /media/vFat vfat defaults,nofail,umask=000 0 0" | sudo tee -a /etc/fstab
+echo "/dev/sda1 /media/ntfs ntfs defaults,nofail,users 0 0" | sudo tee -a /etc/fstab
+echo "/dev/sda1 /media/exFat exfat-fuse defaults,nofail,umask=000 0 0" | sudo tee -a /etc/fstab
 
 #hw clock auskommentieren
 sudo nano /lib/udev/hwclock-set
@@ -66,6 +75,9 @@ sudo nano /lib/udev/hwclock-set
 
 #/sbin/hwclock --rtc=$dev --systz --badyear
 #/sbin/hwclock --rtc=$dev --systz
+
+#Kamera aktivieren
+sudo raspi-config nonint do_camera 0
 
 #boot config
 echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
@@ -98,6 +110,3 @@ echo "#dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
 sudo nano /etc/default/console-setup
 FONTFACE="Terminus"
 FONTSIZE="16x32"
-
-#debug
-sudo apt-get install minicom
