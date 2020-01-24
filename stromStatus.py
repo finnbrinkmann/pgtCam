@@ -7,7 +7,7 @@ from time import sleep
 from log import log as log
 
 
-class stromPi:
+class StromPi:
 
     def __init__(self):
         #init data
@@ -187,14 +187,14 @@ class stromPi:
         # if serial_port.isOpen(): serial_port.close()
         # serial_port.open()
     
-        writeSlow('quit')
+        self.writeSlow('quit')
         sleep(breakS)
-        writeSlow('\x0D')
+        self.writeSlow('\x0D')
         sleep(breakL)
 
-        writeSlow('status-rpi')
+        self.writeSlow('status-rpi')
         sleep(1)
-        writeSlow('\x0D')
+        self.writeSlow('\x0D')
         
 
         sp3_time = self.serial_port.readline(9999);
@@ -326,4 +326,5 @@ class stromPi:
 
         self.getData()
         
-        
+if __name__ == "__main__":
+    obj = StromPi()

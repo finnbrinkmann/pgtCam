@@ -10,18 +10,37 @@ from log import log as log
 from readVoltage import logBatLevel as logBat
 
 
-def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path):
+def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path, bw, receiver, encrypt):
 
     
     
     #camera is activated
     camera = picamera.PiCamera()
-    camera.rotation = rot
-    camera.resolution = (resX, resY) #4x3 size 
-    camera.framerate = fps
     
-    camera.start_preview(alpha = 250) #transparent preview
-    camera.annotate_background = picamera.Color('black')
+    try:
+        camera.rotation = rot
+        camera.resolution = (resX, resY) #4x3 size 
+        camera.framerate = fps
+        
+        camera.start_preview(alpha = 250) #transparent preview
+        camera.annotate_background = picamera.Color('black')
+        
+        #resize annotation text size to video resY
+        annotateTextSize = int(resY / 18)  # resY / 18 results in 576/32 = 18 defaultvideo size / default text size = default ratio. Use the same ratio for textsize for different ressotutions 
+        if annotateTextSize < 6: #cant be smaller
+            camera.annotate_text_size = 6 
+        elif annotateTextSize > 160:#cant be bigger max:160 
+            camera.annotate_text_size = 160
+        else:
+            camera.annotate_text_size = annotateTextSize #default: 32
+            
+        
+        if bw: # black/white (graysale)
+            camera.color_effects =(128,128)
+    
+    except Exception as e:
+        log ("ERROR: Cameraparameter fehlerhaft. " + str(e))
+    
     
     log ("INFO: Aufzeichnung wird vorbereitet.")
     batVoltageString = ""
@@ -44,7 +63,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         
     except Exception as e:
 
-        log ("Error: Fehler beim Abfragen vom USB-Speicherplatz " + str(e))
+        log ("ERROR: Fehler beim Abfragen vom USB-Speicherplatz. " + str(e))
         usage = 'USB-FEHLER'
 
 
@@ -52,7 +71,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     tm = dt.datetime.now()
 
 
-    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
+    #tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
+    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-15, seconds=tm.second, microseconds=tm.microsecond) #for debug, to speed up dev time
 
     try:
         path = path + kName + '/'
@@ -84,21 +104,43 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
     camera.split_recording(outputName  + '.h264') # create a new file every intervalLength (15) min
     
-    try:
-        subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName + '.h264', oldOutputName + '.mp4']) # convert h264 to mp4 format. 
-        log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
-    except Exception as e: 
-        log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
-        oldOutputName = "" # prevent deletion of file
+    #try:
+    #    subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName + '.h264', oldOutputName + '.mp4']) # convert h264 to mp4 format. 
+    #    log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+    #except Exception as e: 
+    #    log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
+    #    oldOutputName = "" # prevent deletion of file
+        
+        
+    if encrypt:
+        try:
+            cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
+            cmdEncrypt = "gpg" + " --output " + oldOutputName + '.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
+            os.system(cmdEncode + ";" + cmdEncrypt)
+            #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+            #log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+            #subprocess.Popen(["gpg","--output", oldOutputName+ '.gpg',"--recipient", receiver, "--encrypt", oldOutputName+ '.mp4']) # convert h264 to mp4 format
+            log("INFO: " + oldOutputName + ".gpg komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+        except Exception as e: 
+            log("ERROR: Verschlüsselung fehlgeschlagen! " + oldOutputName + " " + str(e))
+            oldOutputName = ""
+    else:
+        try:
+            subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+            log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+        except Exception as e: 
+            log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
+            oldOutputName = ""        
+
 
     if powersave: # activate powersave mode if set in conig txt. 
         try:
             os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED
             os.system('echo 0 | sudo tee /sys/class/leds/led1/brightness') #deactivate green RPi onboard LED
             os.system('/usr/bin/tvservice -o') # deactivate display ports
-            log("INFO: POWERSAVE on")
+            log("INFO: POWERSAVE aktiviert")
         except Exception as e:
-            log("WARNING: PowerSave Error. " + str(e))
+            log("WARNING: PowerSave Fehler. " + str(e))
 
     #camera.wait_recording(1)
     log("INFO: Aufzeichnen läuft bis: " + str(powerOffTime))
@@ -139,18 +181,34 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
         
         camera.split_recording(outputName + '.h264')# record to new file
-        try:
-            subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
-            log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
-        except Exception as e: 
-            log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
-            oldOutputName = ""
+        
+        if encrypt:
+            try:
+                cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
+                cmdEncrypt = "gpg" + " --output " + oldOutputName + '.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
+                os.system(cmdEncode + ";" + cmdEncrypt)
+                #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                #log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+                #subprocess.Popen(["gpg","--output", oldOutputName+ '.gpg',"--recipient", receiver, "--encrypt", oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                log("INFO: " + oldOutputName + ".gpg komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+            except Exception as e: 
+                log("ERROR: Verschlüsselung fehlgeschlagen! " + oldOutputName + " " + str(e))
+                oldOutputName = ""
+        else:
+            try:
+                subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+            except Exception as e: 
+                log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
+                oldOutputName = ""        
 
 
     camera.wait_recording(60) #at the end. record one more minute, just in case
     
     try:
         os.remove(oldOutputName+ '.h264') # remove tmp h264 file
+        if encrypt:
+            os.remove(oldOutputName+ '.mp4') # remove tmp mp4 file
     except Exception as e: 
         log("WARNING: Konnte Datei nicht löschen: " + oldOutputName + " " + str(e))
     

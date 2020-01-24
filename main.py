@@ -21,11 +21,15 @@ import cam
 
 try:
 
+    version = "0.9.1 RC2"
 
     log("\n\n#################") 
     log(    "#     Start     #")
     log(    "#################")
-
+    
+    log("INFO: Version: " + str(version))
+    log("INFO: Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
+     
     
     # Super Default Values
     #Default values like camara name should be in the file /home/pi/defaultConfig.txt
@@ -40,16 +44,19 @@ try:
     ipAddress = ''
     stromPi = False
     kName = "KamX"
+    bw = False
+    encrypt = False
+    receiver = ""
     
     bootedToRecord = True
 
-    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
+    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"] # all possible mount points; check /etc/fstab
     path = ""
 
     try:
         camera = picamera.PiCamera()
-        camera.resolution = (640, 480) #4x3 size 
-        camera.framerate = 10
+        camera.resolution = (resX, resY) #4x3 size 
+        camera.framerate = fps
 
         camera.start_preview(alpha = 240) #transparent preview
         camera.annotate_background = picamera.Color('black')
@@ -59,7 +66,7 @@ try:
 
 
     configFile = "/home/pi/defaultConfig.txt"
-    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName)
+    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt)
     
     try:
         camera.rotation = rot
@@ -76,7 +83,7 @@ try:
                 path = x
                 try:
                     configFile = str(x) + "config.txt"
-                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName)
+                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt)
                     
                 except Exception as e:
                     log ("WARNING: Kann Datei nicht lesen " + x +"config.txt. Datei vorhanden? " + str(e))
@@ -97,8 +104,9 @@ try:
     log ("INFO: powersave: " + str(powersave))
     log ("INFO: stromPi: " + str(stromPi))
     log ("INFO: Name: " + str(kName))
+    log ("INFO: Empfänger: " + str(receiver))
+    log ("INFO: Verschlüsseln: " + str(encrypt))
 
-    
     
     log ("INFO: USB-Stick gefunden")
 
@@ -203,7 +211,7 @@ try:
     if bootedToRecord: # record for 15 min to set up the camera and then poweroff
 
         try:
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path) #record video until next poweroff time is reached
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt) #record video until next poweroff time is reached
         except Exception as e:
             log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
             raise # fire main exception to reboot
@@ -213,7 +221,7 @@ try:
             
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path)
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt)
             #if stromPi:
             #    serial_port.write(str.encode('poweroff'))
             #    sleep(breakS)

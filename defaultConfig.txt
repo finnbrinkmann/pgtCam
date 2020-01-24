@@ -19,3 +19,5 @@ name: Kam05
 
 powersave: 0
 
+empfänger: f.brinkmann@pgt-hannover.de
+
