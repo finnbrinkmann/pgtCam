@@ -115,7 +115,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     if encrypt:
         try:
             cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
-            cmdEncrypt = "gpg" + " --output " + oldOutputName + '.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
+            cmdEncrypt = "gpg" + " --output " + oldOutputName + '.mp4.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
             os.system(cmdEncode + ";" + cmdEncrypt)
             #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
             #log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
@@ -185,7 +185,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         if encrypt:
             try:
                 cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
-                cmdEncrypt = "gpg" + " --output " + oldOutputName + '.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
+                cmdEncrypt = "gpg" + " --output " + oldOutputName + '.mp4.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
                 os.system(cmdEncode + ";" + cmdEncrypt)
                 #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
                 #log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))

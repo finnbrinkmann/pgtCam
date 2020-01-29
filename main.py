@@ -21,7 +21,7 @@ import cam
 
 try:
 
-    version = "0.9.1 RC2"
+    version = "0.9.1"
 
     log("\n\n#################") 
     log(    "#     Start     #")
