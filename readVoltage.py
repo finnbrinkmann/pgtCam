@@ -86,41 +86,47 @@ def logBatLevel():
 
         timeout = 200 #timeout if no \n is received #default 9999
 
-        sp3_time = serial_port.readline(timeout);
-        sp3_date = serial_port.readline(timeout);
-        sp3_weekday = serial_port.readline(timeout);
-        sp3_modus = serial_port.readline(timeout);
-        sp3_alarm_enable = serial_port.readline(timeout);
-        sp3_alarm_mode = serial_port.readline(timeout);
-        sp3_alarm_hour = serial_port.readline(timeout);
-        sp3_alarm_min = serial_port.readline(timeout);
-        sp3_alarm_day = serial_port.readline(timeout);
-        sp3_alarm_month = serial_port.readline(timeout);
-        sp3_alarm_weekday = serial_port.readline(timeout);
-        sp3_alarmPoweroff = serial_port.readline(timeout);
-        sp3_alarm_hour_off = serial_port.readline(timeout);
-        sp3_alarm_min_off = serial_port.readline(timeout);
-        sp3_shutdown_enable = serial_port.readline(timeout);
-        sp3_shutdown_time = serial_port.readline(timeout);
-        sp3_warning_enable = serial_port.readline(timeout);
-        sp3_serialLessMode = serial_port.readline(timeout);
-        sp3_intervalAlarm = serial_port.readline(timeout);
-        sp3_intervalAlarmOnTime = serial_port.readline(timeout);
-        sp3_intervalAlarmOffTime = serial_port.readline(timeout);
-        sp3_batLevel_shutdown = serial_port.readline(timeout);
-        sp3_batLevel = serial_port.readline(timeout);
-        sp3_charging = serial_port.readline(timeout);
-        sp3_powerOnButton_enable = serial_port.readline(timeout);
-        sp3_powerOnButton_time = serial_port.readline(timeout);
-        sp3_poweroffMode = serial_port.readline(timeout);
-        sp3_powersave_enable = serial_port.readline(timeout);
-        sp3_ADC_Wide = float(serial_port.readline(timeout))/1000;
-        sp3_ADC_BAT = float(serial_port.readline(timeout))/1000;
-        sp3_ADC_USB = float(serial_port.readline(timeout))/1000;
-        sp3_ADC_OUTPUT = float(serial_port.readline(timeout))/1000;
-        sp3_output_status = serial_port.readline(timeout);
-        sp3_powerfailure_counter = serial_port.readline(timeout);
-        sp3_firmwareVersion = serial_port.readline(timeout);
+        #for firmware 1.72
+        sp3_time = serial_port.readline(9999);
+        sp3_date = serial_port.readline(9999);
+        sp3_weekday = serial_port.readline(9999);
+        sp3_modus = serial_port.readline(9999);
+        sp3_alarm_enable = serial_port.readline(9999);
+        sp3_alarm_mode = serial_port.readline(9999);
+        sp3_alarm_hour = serial_port.readline(9999);
+        sp3_alarm_min = serial_port.readline(9999);
+        sp3_alarm_day = serial_port.readline(9999);
+        sp3_alarm_month = serial_port.readline(9999);
+        sp3_alarm_weekday = serial_port.readline(9999);
+        sp3_alarmPoweroff = serial_port.readline(9999);
+        sp3_alarm_hour_off = serial_port.readline(9999);
+        sp3_alarm_min_off = serial_port.readline(9999);
+        sp3_shutdown_enable = serial_port.readline(9999);
+        sp3_shutdown_time = serial_port.readline(9999);
+        sp3_warning_enable = serial_port.readline(9999);
+        sp3_serialLessMode = serial_port.readline(9999);
+        sp3_intervalAlarm = serial_port.readline(9999);
+        sp3_intervalAlarmOnTime = serial_port.readline(9999);
+        sp3_intervalAlarmOffTime = serial_port.readline(9999);
+        sp3_batLevel_shutdown = serial_port.readline(9999);
+        sp3_batLevel = serial_port.readline(9999);
+        sp3_charging = serial_port.readline(9999);
+        sp3_powerOnButton_enable = serial_port.readline(9999);
+        sp3_powerOnButton_time = serial_port.readline(9999);
+        sp3_powersave_enable = serial_port.readline(9999);
+        sp3_poweroffMode = serial_port.readline(9999);
+        sp3_poweroff_time_enable = serial_port.readline(9999);
+        sp3_poweroff_time = serial_port.readline(9999);
+        sp3_wakeupweekend_enable = serial_port.readline(9999);
+        sp3_ADC_Wide = float(serial_port.readline(9999))/1000;
+        sp3_ADC_BAT = float(serial_port.readline(9999))/1000;
+        sp3_ADC_USB = float(serial_port.readline(9999))/1000;
+        sp3_ADC_OUTPUT = float(serial_port.readline(9999))/1000;
+        sp3_output_status = serial_port.readline(9999);
+        sp3_powerfailure_counter = serial_port.readline(9999);
+        sp3_firmwareVersion = serial_port.readline(9999);
+
+
     except:
         print("ERROR: Fehler beim Init der Abfrage der Batteriespannung")
     

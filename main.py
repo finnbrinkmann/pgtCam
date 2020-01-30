@@ -4,7 +4,7 @@
 import datetime
 import yaml
 #import types
-import socket
+
 import picamera
 import os
 import serial
@@ -21,7 +21,7 @@ import cam
 
 try:
 
-    version = "0.9.1"
+    version = "0.9.3"
 
     log("\n\n#################") 
     log(    "#     Start     #")

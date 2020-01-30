@@ -2,7 +2,7 @@
 # Diese Zeile ist ein Kommentar und wird ignoriert 
 
 
-fps: 10
+fps: 7
 
 resX: 704
 
@@ -11,13 +11,13 @@ resY: 576
 interval: 15
 
 #Cam 2020: rot 180
-rotation: 0
+rotation: 180
 
-stromPi: 0
+stromPi: 1
 
 name: Kam05
 
 powersave: 0
 
-empfänger: f.brinkmann@pgt-hannover.de
+
 

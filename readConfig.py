@@ -3,7 +3,7 @@ import yaml
 #import types
 import os
 from log import log as log
-
+import socket
 
 def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt):
 
@@ -87,6 +87,8 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         try:
             if int(content["powersave"]) == 1:
                 powersave = True
+            else:
+                powersave = False
         except Exception as e:
             log("ERROR: powersave config.txt " + str(e))
         
@@ -137,6 +139,8 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         try:
             if int(content["stromPi"]) == 1:
                 stromPi = True
+            else:
+                stromPi = False
         except Exception as e:
             log("ERROR: stromPi config.txt " + str(e))
         
@@ -152,6 +156,8 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         try:
             if int(content["sw"]) == 1:
                 bw = True
+            else:
+                bw = False
         except Exception as e:
             log("ERROR: schwarzweiß config.txt " + str(e))
             
@@ -159,6 +165,8 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         try:
             if int(content["verschlüsseln"]) == 1:
                 encrypt = True
+            else:
+                encrypt = False
         except Exception as e:
             log("ERROR: verschlüsseln config.txt " + str(e))
             

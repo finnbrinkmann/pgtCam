@@ -49,7 +49,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     if stromPi:
         camera.annotate_text = "Abfrage der Batteriespannung..."
         batVoltage = logBat()
-        batVoltageString = str(batVoltage) + "V"
+        batVoltageString = str(batVoltage)[:4] + "V"
     
     camera.annotate_text = "Aufzeichnung wird vorbereitet..."
     
@@ -71,8 +71,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     tm = dt.datetime.now()
 
 
-    #tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
-    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-15, seconds=tm.second, microseconds=tm.microsecond) #for debug, to speed up dev time
+    tm = tm - dt.timedelta(minutes=(tm.minute % 15)-30, seconds=tm.second, microseconds=tm.microsecond) # calc time of next 0/15/30/45min (and add additional 15min)
+    #tm = tm - dt.timedelta(minutes=(tm.minute % 15)-15, seconds=tm.second, microseconds=tm.microsecond) #for debug, to speed up dev time
 
     try:
         path = path + kName + '/'
@@ -92,7 +92,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         time.sleep(1)
         fileSize = os.path.getsize(outputName + '.h264') % 100 #to limit output to 2 numbers
         #log("filesize = " + str(fileSize))
-        annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + ' ' + usage + ' ' + batVoltageString + str(fileSize) + ' ' + msg
+        annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + ' ' + usage + ' ' + batVoltageString + ' ' +str(fileSize) + ' ' + msg
         camera.annotate_text = annotation
         if tm < dt.datetime.now(): 
             break
@@ -174,6 +174,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
   
         try:
             os.remove(oldOutputName+ '.h264') # remove the old tmp h264 file. (Had interval length time to convert it to mp4)
+            if encrypt:
+                os.remove(oldOutputName+ '.mp4') # remove tmp mp4 file
         except Exception as e: 
             log("WARNING: Konnte Datei nicht löschen: " + oldOutputName + " " + str(e))
             

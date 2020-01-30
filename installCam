@@ -88,6 +88,11 @@ echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
 echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
 
 
+#/etc/wpa_subli...
+network={
+	ssid=""
+	psk=""
+}
 
 
 #ggf dtparam=audio=off 
