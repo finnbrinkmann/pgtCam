@@ -5,7 +5,7 @@ import os
 from log import log as log
 import socket
 
-def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt):
+def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero):
 
 
     configFile = ""
@@ -54,8 +54,9 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
                     log("INFO: WiFi-Status: " + str(wifiActive))
                     
                     try:#insteat ping googles DNS server to see if we have internet connection
+                        sleep(30)# sleep some time for the os to get wifi working
                         soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                        soc.connect(("8.8.8.8", 80))
+                        soc.connect(("8.8.8.8", 80))# try to connect to googles dns server to check for internet access
                         ipAddress = soc.getsockname()[0]
                         log("INFO: IP-Address: " + str(ipAddress))
                         soc.close()
@@ -177,6 +178,13 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         except Exception as e:
             log("ERROR: empfänger config.txt " + str(e))
             
-            
+    if "zero" in content:
+        try:
+            if int(content["zero"]) == 1:
+                zero = True
+            else:
+                zero = False
+        except Exception as e:
+            log("ERROR: zero config.txt " + str(e))
 
-    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt
+    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero

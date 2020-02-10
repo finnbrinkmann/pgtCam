@@ -10,7 +10,7 @@ from log import log as log
 from readVoltage import logBatLevel as logBat
 
 
-def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path, bw, receiver, encrypt):
+def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path, bw, receiver, encrypt, zero):
 
     
     
@@ -33,8 +33,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
             camera.annotate_text_size = 160
         else:
             camera.annotate_text_size = annotateTextSize #default: 32
-            
-        
+
         if bw: # black/white (graysale)
             camera.color_effects =(128,128)
     
@@ -135,9 +134,18 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 
     if powersave: # activate powersave mode if set in conig txt. 
         try:
-            os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED
-            os.system('echo 0 | sudo tee /sys/class/leds/led1/brightness') #deactivate green RPi onboard LED
+            log("TEST: Ich bin hier")
+            if zero:
+                log("TEST: Ich bin hier zero")
+                os.system('echo 1 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED RPIzero
+            else:
+                log("TEST: Ich bin hier nicht zero")
+                os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED on RPi2
+                os.system('echo 0 | sudo tee /sys/class/leds/led1/brightness') #deactivate green RPi onboard LED
+
+            camera.led = False #deactivate camera led
             os.system('/usr/bin/tvservice -o') # deactivate display ports
+            
             log("INFO: POWERSAVE aktiviert")
         except Exception as e:
             log("WARNING: PowerSave Fehler. " + str(e))
@@ -150,7 +158,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 
         if stromPi:
             batVoltage = logBat() # log the Battery voltage #braucht das sehr lange wenn kein strom pi angeschlossen ist?!
-            batVoltageString = str(batVoltage) + "V"
+            batVoltageString = str(batVoltage)[:4] + "V" #4 letters e.g. 13.9V 
             
         end = end + intervalLength * 60 # add 15 min * 60 sec/min
         

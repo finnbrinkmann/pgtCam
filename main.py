@@ -15,13 +15,14 @@ import syncClock
 from log import log as log
 from strompi_config import writeSP
 from readConfig import readConfig as readConfig
+from readVoltage import getVersion as getVersion
 
 import cam
 
 
 try:
 
-    version = "0.9.3"
+    version = "0.9.4"
 
     log("\n\n#################") 
     log(    "#     Start     #")
@@ -35,7 +36,7 @@ try:
     #Default values like camara name should be in the file /home/pi/defaultConfig.txt
     an = []
     aus = []
-    fps = 10
+    fps = 7
     rot = 0
     resX = 704
     resY = 576
@@ -47,8 +48,10 @@ try:
     bw = False
     encrypt = False
     receiver = ""
+    zero = False # to determin which LED to turn off in powersave mode
     
     bootedToRecord = True
+
 
     paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"] # all possible mount points; check /etc/fstab
     path = ""
@@ -66,7 +69,7 @@ try:
 
 
     configFile = "/home/pi/defaultConfig.txt"
-    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt)
+    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero)
     
     try:
         camera.rotation = rot
@@ -83,7 +86,7 @@ try:
                 path = x
                 try:
                     configFile = str(x) + "config.txt"
-                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt)
+                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero)
                     
                 except Exception as e:
                     log ("WARNING: Kann Datei nicht lesen " + x +"config.txt. Datei vorhanden? " + str(e))
@@ -103,10 +106,14 @@ try:
     log ("INFO: interval: " + str(interval))
     log ("INFO: powersave: " + str(powersave))
     log ("INFO: stromPi: " + str(stromPi))
+    log ("INFO: Zero: " + str(zero))
     log ("INFO: Name: " + str(kName))
     log ("INFO: Empfänger: " + str(receiver))
     log ("INFO: Verschlüsseln: " + str(encrypt))
 
+
+    if stromPi:
+        log("INFO: StromPi Firmware Version: " + str(getVersion()))
     
     log ("INFO: USB-Stick gefunden")
 
@@ -211,7 +218,7 @@ try:
     if bootedToRecord: # record for 15 min to set up the camera and then poweroff
 
         try:
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt) #record video until next poweroff time is reached
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero) #record video until next poweroff time is reached
         except Exception as e:
             log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
             raise # fire main exception to reboot
@@ -221,7 +228,7 @@ try:
             
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt)
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero)
             #if stromPi:
             #    serial_port.write(str.encode('poweroff'))
             #    sleep(breakS)
@@ -255,7 +262,13 @@ except Exception as e:
     log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
     log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
     log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
-    
+
+    try:
+        camera.annotate_background = picamera.Color('red')   
+        camera.annotate_text = "ERROR! KEINE AUFZEICHNUNG! " + str(e)
+    except Exception as e:
+        print(e)
+        
     try:
         camera = picamera.PiCamera() # hardcoded failsafe
         camera.resolution = (640, 480) #4x3 size 

@@ -15,8 +15,9 @@ sudo apt install exfat-fuse
 #sudo apt-get install usbmount
 sudo apt-get install gpac #zum mp4 encoding 600mb
 sudo apt-get install python-serial python3-serial
+sudo apt-get install rpi.gpio
 
-sudo apt-get install -y python3-pip python3-picamera exfat-fuse gpac python-serial python3-serial
+sudo apt-get install -y python3-pip python3-picamera exfat-fuse gpac python-serial python3-serial rpi.gpio
 
 #debug
 sudo apt-get install minicom
@@ -89,11 +90,12 @@ echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
 
 
 #/etc/wpa_subli...
-network={
-	ssid=""
-	psk=""
-}
+#network={
+#	ssid=""
+#	psk=""
+#}
 
+sudo echo -e 'network={\n\tssid=""\n\tpsk=""\n}' | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf
 
 #ggf dtparam=audio=off 
 #ggf für besseres bild auf den monitoreb

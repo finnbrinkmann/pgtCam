@@ -70,3 +70,29 @@ def logAkku(s):
             except Exception as e:
                 print ("ERROR: Could not open file: " + x + "akkuLog.txt " + str(e))
         
+
+def logWatchdog(s):
+
+    paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"]
+
+    try:
+        s = str(s)
+        print("Watchdog: " + s)
+    except Exception as e:
+        print("Error: Can not cast log data to string " + str(e))
+                
+    try:
+        f = open('/dev/tty1', 'w')
+        f.write(s + '\n')
+        f.close()
+    except Exception as e:
+        print ("ERROR: Could not open file: /dev/tty1 " + str(e))
+
+    for x in paths:
+        if os.path.ismount(x):
+            try:
+                f = open(x + 'ERROR-WICHTIG.txt', 'a')
+                f.write(s + '\n')
+                f.close()
+            except Exception as e:
+                print ("ERROR: Could not open file: " + x + "akkuLog.txt " + str(e))
