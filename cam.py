@@ -173,23 +173,29 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
             usage = "?%"
             #raise
             #a reboot might be necessary
-            
+
+        log("DEBUG: Loop now")
+        
         while time.time() < end : # while 15min (or intervall length)
             
             annotation = dt.datetime.now().strftime('%H:%M:%S %d.%m.%Y ') + " " + kName + " " + usage + ' ' + batVoltageString # calc annotation text (black bar)
             camera.annotate_text = annotation
             camera.wait_recording(1) #sleep a sec # 
-  
+
+        log("DEBUG: Interval complete")
+        
         try:
             os.remove(oldOutputName+ '.h264') # remove the old tmp h264 file. (Had interval length time to convert it to mp4)
             if encrypt:
                 os.remove(oldOutputName+ '.mp4') # remove tmp mp4 file
         except Exception as e: 
             log("WARNING: Konnte Datei nicht löschen: " + oldOutputName + " " + str(e))
-            
+        
+        log("DEBUG: genOutput names")
+
         oldOutputName = outputName
         outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
-        
+        log("DEBUG: Split Rec")
         camera.split_recording(outputName + '.h264')# record to new file
         
         if encrypt:

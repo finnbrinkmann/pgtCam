@@ -8,18 +8,21 @@ import socket
 def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero):
 
 
-    configFile = ""
+    configFile = None
     content = {}
 
 
     try:
-        configFile = open(filename, "r")
-        log ("INFO: " + str (filename) + " geöffnet")
-        
+        if(os.path.isfile(filename)):
+            configFile = open(filename, "r")
+            log ("INFO: " + str (filename) + " geöffnet")
+        else:
+            log ("WARNING: Kann Datei nicht lesen " + filename + ". Datei nicht vorhanden.")
     except Exception as e:
-        log ("WARNING: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
+        log ("ERROR: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
     try:
-        content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
+        if (configFile != None):
+            content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
     except Exception as e:
         log("ERROR: Fehler in lesen der Config Datei! " + str(e))
         raise

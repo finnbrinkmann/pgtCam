@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+
+
 import datetime 
 import time 
 import threading
@@ -26,7 +28,7 @@ class MyHandler(FileSystemEventHandler):
         
         #readCondig
         configFile = "/home/pi/defaultConfig.txt"
-        an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(None, None, None, None, None, None, None, interval, None, None, None, None, None, None, None, None)
+        an, aus, fps, rot, resX, resY, self.interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, None, None, None, None, None, None, self.interval, None, None, None, None, None, None, None, None)
         
         paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"] # all possible mount points; check /etc/fstab
         stickFound = False
@@ -39,10 +41,11 @@ class MyHandler(FileSystemEventHandler):
                     path = x
                     try:
                         configFile = str(x) + "config.txt"
-                        an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero)
+                        print(configFile)
+                        an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, None, None, None, None, None, None, self.interval, None, None,None, None, None, None, None, None)
                         
                     except Exception as e:
-                        print ("WARNING: Kann Datei nicht lesen " + x +"config.txt. Datei vorhanden? " + str(e))
+                        print ("WARNING: Kann Datei nicht lesen " + x + "config.txt. Datei vorhanden? " + str(e))
                         
                     stickFound = True
             if not stickFound:
@@ -59,9 +62,14 @@ class MyHandler(FileSystemEventHandler):
             time.sleep(30)
             
         try:
-            logW ("ERROR. Ein Fehler ist aufgetreten. Es wurde keine Dateien mehr angelegt! Starte Neu!")
+            logW ("ERROR: Ein Fehler ist aufgetreten. Es wurde keine Dateien mehr angelegt! Starte Neu!")
+            logW (datetime.datetime.now())
             time.sleep(10)
-            os.system('sudo reboot')
+            
+        except Exception as e:
+            print("ERROR: watchdog " + str(e))
+            
+        os.system('sudo reboot')
 
     def on_created(self, event):
         print(f'event type: {event.event_type}  path : {event.src_path}')
@@ -71,13 +79,13 @@ class MyHandler(FileSystemEventHandler):
 
 if __name__ == "__main__":
     
-    time.sleep(5*60) # wait 5min to boot up the rest
+    #time.sleep(5*60) # wait 5min to boot up the rest
     event_handler = MyHandler()
     
     observer = Observer()
     
     #observer.schedule(event_handler, path='/mount/media/', recursive=True)
-    observer.schedule(event_handler, path='.', recursive=True)
+    observer.schedule(event_handler, path='/media/', recursive=True)
     
     observer.start()
 
