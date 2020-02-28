@@ -210,7 +210,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         
         if encrypt:
             try:
-                cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
+                #cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4' # encode with correct fps
+                cmdEncode = "MP4Box" + " -fps " + 25 +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4' # encode with fake old vlc/h264 playbackspeed
                 cmdEncrypt = "gpg" + " --output " + oldOutputName + '.mp4.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
                 os.system(cmdEncode + ";" + cmdEncrypt)
                 #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
@@ -222,7 +223,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
                 oldOutputName = ""
         else:
             try:
-                subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                subprocess.Popen(["MP4Box","-fps", 25,"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format # encode with fake old vlc/h264 playbackspeed
                 log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
             except Exception as e: 
                 log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
