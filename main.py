@@ -22,7 +22,7 @@ import cam
 
 try:
 
-    version = "0.9.4"
+    version = "0.9.6"
 
     log("\n\n#################") 
     log(    "#     Start     #")
@@ -89,7 +89,7 @@ try:
                     an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero)
                     
                 except Exception as e:
-                    log ("WARNING: Kann Datei nicht lesen " + x +"config.txt. Datei vorhanden? " + str(e))
+                    log ("WARNING: Kann Datei nicht lesen " + configFile + ". Datei vorhanden? " + str(e))
                     
                 stickFound = True
         if not stickFound:
@@ -98,13 +98,17 @@ try:
             log ("INFO: Kein USB-Stick gefunden")
             #exit()
                 
-            
+    #log again, if no usbstick was present
+    log("INFO: Version: " + str(version))
+    log("INFO: Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
+    
     log ("INFO: FPS: " + str(fps))
     log ("INFO: rot: " + str(rot))
     log ("INFO: resX: " + str(resX))
     log ("INFO: resY: " + str(resY))
     log ("INFO: interval: " + str(interval))
     log ("INFO: powersave: " + str(powersave))
+    log ("INFO: graustufen: " + str(bw))
     log ("INFO: stromPi: " + str(stromPi))
     log ("INFO: Zero: " + str(zero))
     log ("INFO: Name: " + str(kName))
@@ -116,19 +120,27 @@ try:
         log("INFO: StromPi Firmware Version: " + str(getVersion()))
     
     log ("INFO: USB-Stick gefunden")
+    try:
+        camera.annotate_text = "USB-Stick gefunden"
+    except Exception as e:
+        log("ERROR: Camera fehler. " + str(e))
+        
 
 
-    #def serial connection to communicate with the strom pi
-    serial_port = serial.Serial()
-    serial_port.baudrate = 38400
-    #serial_port.port = '/dev/serial0'
-    serial_port.port = '/dev/ttyAMA0'
-    serial_port.timeout = 1
-    serial_port.bytesize = 8
-    serial_port.stopbits = 1
-    serial_port.parity = serial.PARITY_NONE
-    breakS = 0.1
-    breakL = 0.2
+    try:
+        #def serial connection to communicate with the strom pi
+        serial_port = serial.Serial()
+        serial_port.baudrate = 38400
+        #serial_port.port = '/dev/serial0'
+        serial_port.port = '/dev/ttyAMA0'
+        serial_port.timeout = 1
+        serial_port.bytesize = 8
+        serial_port.stopbits = 1
+        serial_port.parity = serial.PARITY_NONE
+        breakS = 0.1
+        breakL = 0.2
+    except Exception as e:
+        log("ERROR: Serial init Fehlerhaft. " + str(e))
 
 
     nextPoweroff = datetime.datetime.strptime('Jun 1 2080  1:33PM', '%b %d %Y %I:%M%p') # max date in future

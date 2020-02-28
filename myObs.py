@@ -8,7 +8,7 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from log import logWatchdog as logW
-from readConfig import readConfig as readConfig
+import yaml
 
 
 #this file provides a backup system for the camera recording. It checks if there are files recorded
@@ -19,7 +19,36 @@ class MyHandler(FileSystemEventHandler):
     interval = 15
 
     def __init__(self):
-    
+        
+        #cut down version of readConfig.py. Just read the interval length
+        def readConfigObs(self, filename):
+            
+            configFile = None
+            content = {}
+
+            try:
+                if(os.path.isfile(filename)):
+                    configFile = open(filename, "r")
+                    print("INFO: " + str (filename) + " geöffnet")
+                else:
+                    print ("WARNING: Kann Datei nicht lesen " + filename + ". Datei nicht vorhanden.")
+            except Exception as e:
+                print ("ERROR: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
+            try:
+                if (configFile != None):
+                    content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
+            except Exception as e:
+                print("ERROR: Fehler in lesen der Config Datei! " + str(e))
+
+            #log config file
+            if content:
+                if "interval" in content:
+                    try:
+                        self.interval = int(content["interval"])
+                    except ValueERROR as e:
+                        logW("ERROR: Interval config.txt Wert ist keine Zahl. Benutze Default Wert" + str(e))  
+                        
+                
 
         self.shutdownTime = datetime.datetime.now()  + datetime.timedelta(minutes = 35) #wait 35 min at the beginning
         #self.doomsdayClock()
@@ -28,7 +57,7 @@ class MyHandler(FileSystemEventHandler):
         
         #readCondig
         configFile = "/home/pi/defaultConfig.txt"
-        an, aus, fps, rot, resX, resY, self.interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, None, None, None, None, None, None, self.interval, None, None, None, None, None, None, None, None)
+        readConfigObs(self,configFile)
         
         paths = ["/media/ntfs/","/media/vFat/","/media/exFat/"] # all possible mount points; check /etc/fstab
         stickFound = False
@@ -42,7 +71,7 @@ class MyHandler(FileSystemEventHandler):
                     try:
                         configFile = str(x) + "config.txt"
                         print(configFile)
-                        an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, None, None, None, None, None, None, self.interval, None, None,None, None, None, None, None, None)
+                        readConfigObs(self,configFile)
                         
                     except Exception as e:
                         print ("WARNING: Kann Datei nicht lesen " + x + "config.txt. Datei vorhanden? " + str(e))
@@ -69,7 +98,7 @@ class MyHandler(FileSystemEventHandler):
         except Exception as e:
             print("ERROR: watchdog " + str(e))
             
-        os.system('sudo reboot')
+        os.system('sudo reboot') # reboot and hope this will fix the error.
 
     def on_created(self, event):
         print(f'event type: {event.event_type}  path : {event.src_path}')
@@ -79,7 +108,7 @@ class MyHandler(FileSystemEventHandler):
 
 if __name__ == "__main__":
     
-    #time.sleep(5*60) # wait 5min to boot up the rest
+    time.sleep(30*60) # wait 30min skip start period
     event_handler = MyHandler()
     
     observer = Observer()

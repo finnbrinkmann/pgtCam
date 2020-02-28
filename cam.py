@@ -8,7 +8,7 @@ import os
 import subprocess
 from log import log as log
 from readVoltage import logBatLevel as logBat
-
+import RPi.GPIO as GPIO
 
 def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg, stromPi, kName, path, bw, receiver, encrypt, zero):
 
@@ -134,16 +134,26 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 
     if powersave: # activate powersave mode if set in conig txt. 
         try:
-            log("TEST: Ich bin hier")
+            
             if zero:
-                log("TEST: Ich bin hier zero")
+            
+                #os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #activate green RPi onboard LED RPIzero first
+                os.system('echo none | sudo tee /sys/class/leds/led0/trigger') #deactivate green RPi onboard LED RPIzero
                 os.system('echo 1 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED RPIzero
+                
+                GPIO.setmode(GPIO.BCM) #deactivate camera led
+                GPIO.setup(40, GPIO.OUT, initial=False)
+                
             else:
-                log("TEST: Ich bin hier nicht zero")
+            
+
+                os.system('echo none | sudo tee /sys/class/leds/led0/trigger') #deaktivate trigger
+                os.system('echo none | sudo tee /sys/class/leds/led1/trigger') #deaktivate trigger
                 os.system('echo 0 | sudo tee /sys/class/leds/led0/brightness') #deactivate green RPi onboard LED on RPi2
                 os.system('echo 0 | sudo tee /sys/class/leds/led1/brightness') #deactivate green RPi onboard LED
 
-            camera.led = False #deactivate camera led
+                camera.led = False #deactivate camera led
+                
             os.system('/usr/bin/tvservice -o') # deactivate display ports
             
             log("INFO: POWERSAVE aktiviert")

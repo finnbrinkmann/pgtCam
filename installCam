@@ -8,41 +8,42 @@ sudo systemctl start ssh
 
 #install system components
 sudo apt-get update
-sudo apt-get install python3-pip 
-sudo apt-get install python3-picamera
-#sudo apt-get install ntfs-3g
-sudo apt install exfat-fuse
-#sudo apt-get install usbmount
-sudo apt-get install gpac #zum mp4 encoding 600mb
-sudo apt-get install python-serial python3-serial
-sudo apt-get install rpi.gpio
+sudo apt-get -y install python3-pip 
+sudo apt-get -y install python3-picamera
+sudo apt-get -y install ntfs-3g
+sudo apt-get -y install exfat-fuse
+sudo apt-get -y install gpac #zum mp4 encoding 
+sudo apt-get -y install python-serial python3-serial
+sudo apt-get -y install rpi.gpio
 
-sudo apt-get install -y python3-pip python3-picamera exfat-fuse gpac python-serial python3-serial rpi.gpio
+#sudo apt-get install -y python3-pip python3-picamera exfat-fuse gpac python-serial python3-serial rpi.gpio
 
 #debug
-sudo apt-get install minicom
-sudo apt-get install i2c-tools
+#sudo apt-get -y install minicom
+#sudo apt-get -y install i2c-tools
 
 #pip
 pip3 install pyyaml
 pip3 install pyserial
 pip3 install watchdog
-pip3 install pyyaml pyserial
+#pip3 install pyyaml pyserial
 
 
 ##WICHITG! in boot cmd serielle frei machen
-sudo nano /boot/cmdline.txt
+#sudo nano /boot/cmdline.txt
 #ändern in zB
 #console=tty3 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3
 #console=tty3 root=/dev/mmcblk0p1 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3
-echo "console=tty3 root=/dev/mmcblk0p1 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3" | sudo tee /boot/cmdline.txt
+#incase of a kernel panic, you might change these parameters root=...number
+echo "console=tty3 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet loglevel=3" | sudo tee /boot/cmdline.txt
 
 #system settings
 echo "enable_uart=1" | sudo tee -a /boot/config.txt
 #sudo chmod 666 /dev/serial0
 #sudo chmod 666 /dev/tty1
 #sudo adduser pi tty
-
+sudo usermod -a -G tty pi
+sudo usermod -a -G gpio pi
 
 
 #rc.local #needed?
@@ -52,10 +53,10 @@ echo "exit 0" | sudo tee -a /etc/rc.local
 
 #cron (autostart)
 #(crontab -l 2>/dev/null; echo "*/5 * * * * /path/to/job -with args") | crontab -
-(sudo  -l 2>/dev/null; echo "@reboot chmod 666 /dev/serial0") | sudo crontab -
-(sudo  -l 2>/dev/null; echo "@reboot chmod 666 /dev/tty1") | sudo crontab -
-(crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py") | crontab -
-(crontab -l 2>/dev/null; echo "@reboot /home/pi/myObs.py") | crontab -
+#(sudo crontab -l 2>/dev/null; echo "@reboot chmod 666 /dev/serial0") |  sudo crontab -
+#(sudo crontab -l 2>/dev/null; echo "@reboot chmod 666 /dev/tty1") | sudo crontab -
+#(crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py") | crontab -
+#(crontab -l 2>/dev/null; echo "@reboot /home/pi/myObs.py") | crontab -
 
 
 #sonstiges
@@ -69,6 +70,7 @@ echo "/dev/sda1 /media/vFat vfat defaults,nofail,umask=000 0 0" | sudo tee -a /e
 echo "/dev/sda1 /media/ntfs ntfs defaults,nofail,users 0 0" | sudo tee -a /etc/fstab
 echo "/dev/sda1 /media/exFat exfat-fuse defaults,nofail,umask=000 0 0" | sudo tee -a /etc/fstab
 
+#sudo sed -i \'s/psk=".*"/psk=""/g\' /etc/wpa_supplicant/wpa_supplicant.conf
 #hw clock auskommentieren
 sudo nano /lib/udev/hwclock-set
 #if [ -e /run/systemd/system ] ; then
@@ -77,6 +79,7 @@ sudo nano /lib/udev/hwclock-set
 
 #/sbin/hwclock --rtc=$dev --systz --badyear
 #/sbin/hwclock --rtc=$dev --systz
+
 
 #Kamera aktivieren
 sudo raspi-config nonint do_camera 0
@@ -111,10 +114,13 @@ sudo timedatectl set-timezone Europe/Berlin
 #disable bluetooth
 echo "dtoverlay=pi3-disable-bt" | sudo tee -a /boot/config.txt
 
-#prepar disable bluetooth
+#prepar disable wifi
 echo "#dtoverlay=pi3-disable-wifi" | sudo tee -a /boot/config.txt
 
 #console font tty1 
-sudo nano /etc/default/console-setup
-FONTFACE="Terminus"
-FONTSIZE="16x32"
+#sudo nano /etc/default/console-setup
+sudo sed -i 's/FONTFACE=""/FONTFACE="Terminus"/g' /etc/default/console-setup
+sudo sed -i 's/FONTSIZE=""/FONTSIZE="16x32"/g' /etc/default/console-setup
+
+#FONTFACE="Terminus"
+#FONTSIZE="16x32"

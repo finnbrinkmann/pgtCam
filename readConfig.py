@@ -4,6 +4,7 @@ import yaml
 import os
 from log import log as log
 import socket
+from time import sleep
 
 def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero):
 
@@ -97,13 +98,19 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
             log("ERROR: powersave config.txt " + str(e))
         
     if "an" in content:
-        for i in content["an"]:
-            an.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M')) # parse string to date
-
+        try:
+            for i in content["an"]:
+                an.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M')) # parse string to date
+        except Exception as e:
+            log("ERROR: an: " + str(e))
 
     if "aus" in content:
-        for i in content["aus"]:
-            aus.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M'))
+        try:
+            for i in content["aus"]:
+                aus.append(datetime.datetime.strptime(i,'%d.%m.%Y %H:%M'))
+        except Exception as e:
+            log("ERROR: aus: " + str(e))
+            
             
     if "fps" in content:
         try:
