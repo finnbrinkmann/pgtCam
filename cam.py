@@ -76,7 +76,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     try:
         path = path + kName + '/'
         os.makedirs(path, exist_ok=True) # create folder if does not exist
-        outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M') + 'preview'
+        outputName = path + kName + ' ' + dt.datetime.now().strftime('%Y-%m-%d_%H-%M') + 'preview'
     except Exception as e:
         log("ERROR: Konnte Ordner nicht anlegen. USB-Stick fehlerhaft? " + str(e))
     
