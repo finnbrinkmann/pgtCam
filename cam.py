@@ -76,7 +76,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
     try:
         path = path + kName + '/'
         os.makedirs(path, exist_ok=True) # create folder if does not exist
-        outputName = path + kName + ' ' + dt.datetime.now().strftime('%Y-%m-%d_%H-%M') + 'preview'
+        outputName = path + kName + '_' + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
     except Exception as e:
         log("ERROR: Konnte Ordner nicht anlegen. USB-Stick fehlerhaft? " + str(e))
     
@@ -113,7 +113,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         
     if encrypt:
         try:
-            cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
+            cmdEncode = "MP4Box" + " -fps " + str(25) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4'
             cmdEncrypt = "gpg" + " --output " + oldOutputName + '.mp4.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
             os.system(cmdEncode + ";" + cmdEncrypt)
             #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
@@ -125,7 +125,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
             oldOutputName = ""
     else:
         try:
-            subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+            subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
             log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
         except Exception as e: 
             log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
@@ -204,14 +204,14 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         log("DEBUG: genOutput names")
 
         oldOutputName = outputName
-        outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
+        outputName = path + kName + '_' + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
         log("DEBUG: Split Rec")
         camera.split_recording(outputName + '.h264')# record to new file
         
         if encrypt:
             try:
                 #cmdEncode = "MP4Box" + " -fps " + str(fps) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4' # encode with correct fps
-                cmdEncode = "MP4Box" + " -fps " + 25 +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4' # encode with fake old vlc/h264 playbackspeed
+                cmdEncode = "MP4Box" + " -fps " + str(25) +" -add " + oldOutputName + ".h264 " + oldOutputName + '.mp4' # encode with fake old vlc/h264 playbackspeed
                 cmdEncrypt = "gpg" + " --output " + oldOutputName + '.mp4.gpg' + " --recipient " + receiver + " --encrypt " + oldOutputName + '.mp4'
                 os.system(cmdEncode + ";" + cmdEncrypt)
                 #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
@@ -224,7 +224,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         else:
             try:
                 #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
-                subprocess.Popen(["MP4Box","-fps", 25,"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format # encode with fake old vlc/h264 playbackspeed
+                subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format # encode with fake old vlc/h264 playbackspeed
                 log("INFO: " + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
             except Exception as e: 
                 log("ERROR: Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))

@@ -23,7 +23,7 @@ import cam
 
 try:
 
-    version = "0.9.6.1"
+    version = "0.9.6.3"
 
     log("\n\n#################") 
     log(    "#     Start     #")
@@ -94,7 +94,7 @@ try:
                     
                 stickFound = True
         if not stickFound:
-            camera.annotate_text = "KEIN USB-STICK GEFUNDEN"
+            camera.annotate_text = "KEIN USB-STICK GEFUNDEN! Version: " + str(version)
             sleep(5)
             log ("INFO: Kein USB-Stick gefunden")
             #exit()
