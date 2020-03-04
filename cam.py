@@ -100,7 +100,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
 
     log ("INFO: Starte die Aufnahme")
     oldOutputName = outputName #remember old file in order to encode and delete
-    outputName = path + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
+    outputName = path + kName + '_' + dt.datetime.now().strftime('%Y-%m-%d_%H-%M')
     camera.split_recording(outputName  + '.h264') # create a new file every intervalLength (15) min
     
     #try:
