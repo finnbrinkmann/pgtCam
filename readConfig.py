@@ -23,6 +23,7 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
         log ("ERROR: Kann Datei nicht lesen " + filename + ". Datei vorhanden? " + str(e))
     try:
         if (configFile != None):
+            #content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format #old version
             content = yaml.load(configFile, Loader=yaml.FullLoader) # read config file in yaml format
     except Exception as e:
         log("ERROR: Fehler in lesen der Config Datei! " + str(e))

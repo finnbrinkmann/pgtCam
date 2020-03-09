@@ -225,7 +225,7 @@ try:
     try:
         camera.close() #close preview camera
     except Exception as e:
-        log("Error: Konnte Kamera Obj nicht schließen " + str(e))
+        log("ERROR: Konnte Kamera Obj nicht schließen " + str(e))
 
 
     if bootedToRecord: # record for 15 min to set up the camera and then poweroff
@@ -233,25 +233,27 @@ try:
         try:
             cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero) #record video until next poweroff time is reached
         except Exception as e:
-            log("Error: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
+            log("ERROR: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
+            # this might happen if the usb is lost
+            
+            try:
+                sleep(10)
+                nextPoweroff = datetime.datetime.strptime('Jun 1 2080  1:33PM', '%b %d %Y %I:%M%p') # max date in future
+                cam.recVideo(nextPoweroff, 7, 400, 300, 15, False, rot, "", False, kName, "/home/pi/rec/", True , None, False, False) #record to SD Card in
+            except Exception as e:
+                log("ERROR: Schwerer Fehler! Notfallaufzeichung auf die SD-Karte fehlgeschlagen!" + str(e))
+            
             raise # fire main exception to reboot
 
     else:
         try:
-            
+            #record short preview
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
             log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
             cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero)
-            #if stromPi:
-            #    serial_port.write(str.encode('poweroff'))
-            #    sleep(breakS)
-            #    serial_port.write(str.encode('\x0D'))
-            #    sleep(breakL)
-            #log("Runterfahren")
-            #os.system('sudo shutdown +0')
-            #exit()
+
         except Exception as e:
-            log("Error: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
+            log("ERROR: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
             raise
 
 
@@ -265,7 +267,7 @@ try:
             serial_port.write(str.encode('\x0D'))
             sleep(breakL)
         except Exception as e:
-            log("Error: StromPi hat kein Poweroff signal erhalten " + str(e))
+            log("ERROR: StromPi hat kein Poweroff signal erhalten " + str(e))
             
     os.system('sudo shutdown +0')
 
