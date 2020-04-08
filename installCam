@@ -55,7 +55,7 @@ echo "exit 0" | sudo tee -a /etc/rc.local
 #(crontab -l 2>/dev/null; echo "*/5 * * * * /path/to/job -with args") | crontab -
 #(sudo crontab -l 2>/dev/null; echo "@reboot chmod 666 /dev/serial0") |  sudo crontab -
 #(sudo crontab -l 2>/dev/null; echo "@reboot chmod 666 /dev/tty1") | sudo crontab -
-#(crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py") | crontab -
+#(crontab -l 2>/dev/null; echo "@reboot /home/pi/main.py > /dev/tty1") | crontab -
 #(crontab -l 2>/dev/null; echo "@reboot /home/pi/myObs.py") | crontab -
 
 

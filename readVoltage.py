@@ -6,6 +6,7 @@ import time
 from log import logAkku as logAkku
 from log import log as log
 from time import sleep
+import log2
 
 #sometimes the strompi is to slow if you bombard him with data
 
@@ -131,12 +132,12 @@ def logBatLevel():
 
 
     except KeyboardInterrupt:
-        log('interrupted!')
+        log2.logger.debug('interrupted!')
         
     except BaseException as e:
-        log("ERROR: Fehler beim Abfragen der Batteriespannung" + str(e))
+        log2.logger.error("Fehler beim Abfragen der Batteriespannung" + str(e))
     except:
-        log("ERROR: Fehler beim Init der Abfrage der Batteriespannung")
+        log2.logger.error("Fehler beim Init der Abfrage der Batteriespannung")
 
     try:
         if sp3_ADC_Wide > wide_range_volt_min:
@@ -147,7 +148,7 @@ def logBatLevel():
         logAkku(time.strftime("%Y-%m-%d %H:%M ") + wide_range_volt)
 
     except BaseException as e:
-        log("ERROR: Fehler beim Abfragen der Batteriespannung" + str(e))
+        log2.logger.error("Fehler beim Abfragen der Batteriespannung" + str(e))
 
     serial_port.close()
 
@@ -273,10 +274,10 @@ def getVersion():
 
 
     except KeyboardInterrupt:
-        log('interrupted!')
+        log2.logger.debug('interrupted!')
         
     except BaseException as e:
-        log("ERROR: Fehler beim Abfragen der StromPi Version" + str(e))
+        log2.logger.error("Fehler beim Abfragen der StromPi Version" + str(e))
 
     serial_port.close()
 
@@ -284,7 +285,7 @@ def getVersion():
     try:
         firmwareString = str(sp3_firmwareVersion.decode())
     except Exception as e:
-        log("ERROR: Konnte Firmware Version des StromPi nicht auslesen. " + str(e))
+        log2.logger.error("Konnte Firmware Version des StromPi nicht auslesen. " + str(e))
         
     
     return firmwareString

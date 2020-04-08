@@ -20,7 +20,7 @@ class MyHandler(FileSystemEventHandler):
 
     def __init__(self):
         
-        #cut down version of readConfig.py. Just read the interval length
+        #cut down version of readConfig.py. Just to read the interval length
         def readConfigObs(self, filename):
             
             configFile = None

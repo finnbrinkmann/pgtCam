@@ -12,25 +12,24 @@ from time import sleep
 
 import stromStatus
 import syncClock
-from log import log as log
+#from log import log as log
 from strompi_config import writeSP
 from readConfig import readConfig as readConfig
 from readVoltage import getVersion as getVersion
-
+from log2 import log as log
+import log2
 import cam
-
+import logging
 
 
 try:
+    version = "0.9.8.2"
 
-    version = "0.9.7"
-
-    log("\n\n#################") 
-    log(    "#     Start     #")
-    log(    "#################")
-    
-    log("INFO: Version: " + str(version))
-    log("INFO: Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
+    log2.logger.info("\n\n\t#################") 
+    log2.logger.info(    "\t#     Start     #")
+    log2.logger.info(    "\t#################")
+    log2.logger.debug("Version: " + str(version))
+    log2.logger.info("Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
      
     
     # Super Default Values
@@ -50,6 +49,7 @@ try:
     encrypt = False
     receiver = ""
     zero = False # to determin which LED to turn off in powersave mode
+    bitrate = 17000000
     
     bootedToRecord = True
 
@@ -66,16 +66,16 @@ try:
         camera.annotate_background = picamera.Color('black')
         camera.annotate_text = "Starte..."
     except Exception as e:
-        log("ERROR: konnte camera nicht starten. " + str(e))
+        log2.logger.error("konnte camera nicht starten. " + str(e))
 
 
     configFile = "/home/pi/defaultConfig.txt"
-    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero)
+    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate)
     
     try:
         camera.rotation = rot
     except Exception as e:
-        log("ERROR: konnte camera nicht drehen. " + str(e))
+        log2.logger.error("konnte camera nicht drehen. " + str(e))
 
     stickFound = False
     while not stickFound: #loopbreak until a stick is found
@@ -83,48 +83,59 @@ try:
         for x in paths:
             
             if os.path.ismount(x):
-                log("INFO: Mountpunkt ist: " + str(x))
+                log2.logger.debug("Mountpunkt ist: " + str(x))
                 path = x
                 try:
+                    usb_handler = logging.FileHandler(x + 'log.txt')
+                    
+                    usb_format = logging.Formatter('%(asctime)s|%(levelname)s\t%(message)s')
+                    usb_handler.setFormatter(usb_format)
+                    usb_handler.setLevel(logging.DEBUG)
+                    log2.logger.addHandler(usb_handler)
+                    log2.logger.debug("USB logger angelegt. " + x)
+                except Exception as e:
+                    log2.logger.error("Kann USB logger nicht initialisieren" + str(e))
+                try:
                     configFile = str(x) + "config.txt"
-                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero)
+                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero, bitrate)
                     
                 except Exception as e:
-                    log ("WARNING: Kann Datei nicht lesen " + configFile + ". Datei vorhanden? " + str(e))
+                    log2.logger.warning("Kann Datei nicht lesen " + configFile + ". Datei vorhanden? " + str(e))
                     
                 stickFound = True
         if not stickFound:
             camera.annotate_text = "KEIN USB-STICK GEFUNDEN! Version: " + str(version)
             sleep(5)
-            log ("INFO: Kein USB-Stick gefunden")
+            log2.logger.info("Kein USB-Stick gefunden")
             #exit()
                 
     #log again, if no usbstick was present
-    log("INFO: Version: " + str(version))
-    log("INFO: Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
+    log2.logger.debug("Version: " + str(version))
+    log2.logger.info("Zeit: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
     
-    log ("INFO: FPS: " + str(fps))
-    log ("INFO: rot: " + str(rot))
-    log ("INFO: resX: " + str(resX))
-    log ("INFO: resY: " + str(resY))
-    log ("INFO: interval: " + str(interval))
-    log ("INFO: powersave: " + str(powersave))
-    log ("INFO: graustufen: " + str(bw))
-    log ("INFO: stromPi: " + str(stromPi))
-    log ("INFO: Zero: " + str(zero))
-    log ("INFO: Name: " + str(kName))
-    log ("INFO: Empfänger: " + str(receiver))
-    log ("INFO: Verschlüsseln: " + str(encrypt))
+    log2.logger.debug("FPS: " + str(fps))
+    log2.logger.debug("rot: " + str(rot))
+    log2.logger.debug("resX: " + str(resX))
+    log2.logger.debug("resY: " + str(resY))
+    log2.logger.debug("bitrate: " + str(bitrate))
+    log2.logger.debug("interval: " + str(interval))
+    log2.logger.info("powersave: " + str(powersave))
+    log2.logger.debug("graustufen: " + str(bw))
+    log2.logger.debug("stromPi: " + str(stromPi))
+    log2.logger.debug("Zero: " + str(zero))
+    log2.logger.debug("Name: " + str(kName))
+    log2.logger.debug("Empfänger: " + str(receiver))
+    log2.logger.debug("Verschlüsseln: " + str(encrypt))
 
 
     if stromPi:
-        log("INFO: StromPi Firmware Version: " + str(getVersion()))
+        log2.logger.debug("StromPi Firmware Version: " + str(getVersion()))
     
-    log ("INFO: USB-Stick gefunden")
+    log2.logger.info("USB-Stick gefunden")
     try:
         camera.annotate_text = "USB-Stick gefunden"
     except Exception as e:
-        log("ERROR: Camera fehler. " + str(e))
+        log2.logger.error("Camera fehler. " + str(e))
         
 
 
@@ -141,17 +152,17 @@ try:
         breakS = 0.1
         breakL = 0.2
     except Exception as e:
-        log("ERROR: Serial init Fehlerhaft. " + str(e))
+        log2.logger.error("Serial init Fehlerhaft. " + str(e))
 
 
     nextPoweroff = datetime.datetime.strptime('Jun 1 2080  1:33PM', '%b %d %Y %I:%M%p') # max date in future
 
     if stromPi:
-        log("INFO: StromPi soll vorhanden sein")
+        log2.logger.debug("StromPi soll vorhanden sein")
         try:#Uhren Synconisieren
             syncClock.syncClock()
         except Exception as e:
-            log("ERROR: SPi Uhr konnte nicht Sync werden. " + str(e))
+            log2.logger.error("SPi Uhr konnte nicht Sync werden. " + str(e))
 
 
         if serial_port.isOpen(): serial_port.close()
@@ -159,7 +170,7 @@ try:
         try:
             serial_port.open()
         except Exception as e:
-            log("ERROR: Fehler in der seriellen Kommunikation. " + str(e))
+            log2.logger.error("Fehler in der seriellen Kommunikation. " + str(e))
 
         #arrange items in the correct order
         an.sort()
@@ -167,34 +178,38 @@ try:
         an.reverse()
         aus.reverse()
 
-        for i in an[::-1]: #loop in reverse order to del items correctly
+        
+        if len(an) > 0:
             bootedToRecord = False
+        
+        for i in an[::-1]: #loop in reverse order to del items correctly
+            
             if i > datetime.datetime.now() + datetime.timedelta(minutes=5):
-                log("INFO: Datum liegt in der Zukunft " + str (i))
+                log2.logger.info("Datum liegt in der Zukunft " + str (i))
             else:
-                log("INFO: Datum liegt in der Vergangenheit und wird ignoriert! " + str (i))
+                log2.logger.info("Datum liegt in der Vergangenheit und wird ignoriert! " + str (i))
                 an.remove(i)
                 bootedToRecord = True # if there are some dates in the past, we assume that we started to record
 
 
         for i in aus[::-1]: #loop in reverse order to del items correctly
             if i > datetime.datetime.now():
-                log("INFO: Datum in Zukunft " + str (i))
+                log2.logger.info("Datum in Zukunft " + str (i))
             else:
-                log("INFO: Datum in Vergangenheit - ignoriert " + str (i))
+                log2.logger.info("Datum in Vergangenheit - ignoriert " + str (i))
                 aus.remove(i)
 
 
         if an: # if an has still items (dates in the future)
             
             try:
-                log ("INFO: Programm StromPi")
+                log2.logger.info("Programm StromPi")
                 
                 nextTime = an.pop()# get next date coming
                 
                 nextTime = nextTime - datetime.timedelta(minutes=5)# substract 5 min to make sure RPi is booted and ready when recording should start.
                 
-                log ("INFO: Nächster Start: " + str(nextTime))
+                log2.logger.info("Nächster Start: " + str(nextTime))
                 
                 #sp3_alarm_enable = 1
                 sp3_alarm_min = nextTime.strftime("%M")
@@ -205,16 +220,16 @@ try:
                 writeSP(sp3_alarm_month,sp3_alarm_day,sp3_alarm_hour,sp3_alarm_min) # write next start time to the RPi
                 
             except Exception as e:
-                log("Error: Konnte nächsten Anschaltzeitpunkt nicht konfigurieren. Empfehle neustart. Notaufzeichnung start" + str(e))           
+                log2.logger.error("Error: Konnte nächsten Anschaltzeitpunkt nicht konfigurieren. Empfehle neustart. Notaufzeichnung start" + str(e))           
 
         else:
-            log ("INFO: Keine weiteren Einschaltzeitpunkte!")
+            log2.logger.info("Keine weiteren Einschaltzeitpunkte!")
             
         if aus: # if has items
-            log ("INFO: Es sind Ausschaltzeiten programmiert")
+            log2.logger.info("Es sind Ausschaltzeiten programmiert")
             #we dont use the shutoff tool of the strompi, but shutdown by ourself
         else:
-            log ("INFO: Keine weiteren Ausschaltzeitpunkte!")
+            log2.logger.info("Keine weiteren Ausschaltzeitpunkte!")
             
 
             
@@ -225,23 +240,23 @@ try:
     try:
         camera.close() #close preview camera
     except Exception as e:
-        log("ERROR: Konnte Kamera Obj nicht schließen " + str(e))
+        log2.logger.error("Konnte Kamera Obj nicht schließen " + str(e))
 
 
     if bootedToRecord: # record for 15 min to set up the camera and then poweroff
 
         try:
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero) #record video until next poweroff time is reached
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero, bitrate) #record video until next poweroff time is reached
         except Exception as e:
-            log("ERROR: Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
+            log2.logger.error("Schwerer Fehler! Konnte Aufzeichnung nicht starten!" + str(e))
             # this might happen if the usb is lost
             
             try:
                 sleep(10)
                 nextPoweroff = datetime.datetime.strptime('Jun 1 2080  1:33PM', '%b %d %Y %I:%M%p') # max date in future
-                cam.recVideo(nextPoweroff, 7, 400, 300, 15, False, rot, "", False, kName, "/home/pi/rec/", True , None, False, False) #record to SD Card in
+                cam.recVideo(nextPoweroff, 7, 400, 300, 15, False, rot, "", False, kName, "/home/pi/rec/", True , None, False, False, 10000) #record to SD Card in
             except Exception as e:
-                log("ERROR: Schwerer Fehler! Notfallaufzeichung auf die SD-Karte fehlgeschlagen!" + str(e))
+                log2.logger.error("Schwerer Fehler! Notfallaufzeichung auf die SD-Karte fehlgeschlagen!" + str(e))
             
             raise # fire main exception to reboot
 
@@ -249,16 +264,16 @@ try:
         try:
             #record short preview
             nextPoweroff = datetime.datetime.now() + datetime.timedelta(minutes=15)
-            log("INFO: Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
-            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero)
+            log2.logger.info("Keine Startzeiten in der Vergangenheit. 15min Preview, danach PowerOff!")
+            cam.recVideo(nextPoweroff, fps, resX, resY, interval, powersave, rot, str(ipAddress), stromPi, kName, path, bw, receiver, encrypt, zero, bitrate)
 
         except Exception as e:
-            log("ERROR: Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
+            log2.logger.error("Schwerer Fehler! Power off nicht Erfolgreich! Programmierung fehlgeschlagen! " + str(e))
             raise
 
 
     #shutdown
-    log("ENDE: shutting down now")
+    log2.logger.info("shutting down now")
     
     if stromPi: # if stromPi is used, shut it down first
         try:
@@ -267,16 +282,16 @@ try:
             serial_port.write(str.encode('\x0D'))
             sleep(breakL)
         except Exception as e:
-            log("ERROR: StromPi hat kein Poweroff signal erhalten " + str(e))
+            log2.logger.error("StromPi hat kein Poweroff signal erhalten " + str(e))
             
     os.system('sudo shutdown +0')
 
 #if everything is broken
 except Exception as e:
     print(e)
-    log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
-    log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
-    log("ERROR: Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
+    log2.logger.error("Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
+    log2.logger.error("Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
+    log2.logger.error("Unerwarteter Ausnahmefehler! KEINE Aufzeichnung! " + str(e))
 
     try:
         camera.annotate_background = picamera.Color('red')   
@@ -297,9 +312,9 @@ except Exception as e:
         print(e)
 
 
-    log("Starte in 60s NEU!!!!! ")
-    log("Starte in 60s NEU!!!!! ")
-    log("Starte in 60s NEU!!!!! ")
+    log2.logger.critical("Starte in 60s NEU!!!!! ")
+    log2.logger.critical("Starte in 60s NEU!!!!! ")
+    log2.logger.critical("Starte in 60s NEU!!!!! ")
     
     #last hope: reboot
     sleep(60) #60s to ssh and kill the process to prevent reboot loop

@@ -1,6 +1,4 @@
 import os
-
-
 # this function replaces the print function, so all output is written to console, monitor and logfile
 
 def log(s):
