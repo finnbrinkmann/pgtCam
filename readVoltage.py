@@ -145,7 +145,7 @@ def logBatLevel():
         else:
             wide_range_volt = '0'
     
-        logAkku(time.strftime("%Y-%m-%d %H:%M ") + wide_range_volt)
+        logAkku(time.strftime("%Y-%m-%d %H:%M ") + wide_range_volt)# hier fehler=!
 
     except BaseException as e:
         log2.logger.error("Fehler beim Abfragen der Batteriespannung" + str(e))
