@@ -55,7 +55,7 @@ class StromPi:
 
             self.serial_port.baudrate = 38400
             #serial_port.port = '/dev/serial0'
-            serial_port.port = '/dev/ttyAMA0'
+            self.serial_port.port = '/dev/ttyAMA0'
             self.serial_port.timeout = 1
             self.serial_port.bytesize = 8
             self.serial_port.stopbits = 1
@@ -69,18 +69,20 @@ class StromPi:
             log ("Error: Fehler in der seriellen Kommunikation. " + str(e))
             self.open = False
 
+        self.getData()
 
-    def writeSlow(content):
+
+    def writeSlow(self,content):
 
         content = list (content)
         
         for i in content:
-            serial_port.write(str.encode(i))
+            self.serial_port.write(str.encode(i))
             sleep(0.01)
         
         
-        serial_port.write(str.encode('\x0D'))
-        sleep(breakL)
+        self.serial_port.write(str.encode('\x0D'))
+        sleep(0.05)
 
 
 
@@ -322,9 +324,9 @@ class StromPi:
 
         self.serial_port.close()
         
-    def __init__(self):
-
-        self.getData()
+#    def __init__(self):
+#
+#        self.getData()
         
 if __name__ == "__main__":
     obj = StromPi()

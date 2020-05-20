@@ -16,14 +16,14 @@ import syncClock
 from strompi_config import writeSP
 from readConfig import readConfig as readConfig
 from readVoltage import getVersion as getVersion
-from log2 import log as log
+
 import log2
 import cam
 import logging
 
 
 try:
-    version = "0.9.8.2"
+    version = "0.9.8.3"
 
     log2.logger.info("\n\n\t#################") 
     log2.logger.info(    "\t#     Start     #")
