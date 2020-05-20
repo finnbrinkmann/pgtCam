@@ -226,7 +226,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
             else:
                 try:
                     #subprocess.Popen(["MP4Box","-fps", str(fps),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
-                    subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format # encode with fake old vlc/h264 playbackspeed
+                    #subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format # encode with fake old vlc/h264 playbackspeed
                     log2.logger.info("" + oldOutputName + ".mp4 komplett.")
                 except Exception as e: 
                     log2.logger.error("Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
@@ -236,7 +236,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
         camera.wait_recording(60) #at the end. record one more minute, just in case
         
         try:
-            os.remove(oldOutputName+ '.h264') # remove tmp h264 file
+            #os.remove(oldOutputName+ '.h264') # remove tmp h264 file
             if encrypt:
                 os.remove(oldOutputName+ '.mp4') # remove tmp mp4 file
         except Exception as e: 
