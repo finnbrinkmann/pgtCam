@@ -127,8 +127,8 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
                 oldOutputName = "" # change name in case of an error to prevent the from deletetion
         else:
             try:
-                subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
-                log2.logger.info("" + oldOutputName + ".mp4 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
+                #subprocess.Popen(["MP4Box","-fps", str(25),"-add",oldOutputName+ '.h264', oldOutputName+ '.mp4']) # convert h264 to mp4 format
+                log2.logger.info("" + oldOutputName + ".h264 komplett." +  dt.datetime.now().strftime('%Y-%m-%d_%H-%M'))
             except Exception as e: 
                 log2.logger.error("Codierung fehlgeschlagen! " + oldOutputName + " " + str(e))
                 oldOutputName = ""        
@@ -197,7 +197,7 @@ def recVideo(powerOffTime, fps, resX, resY, intervalLength, powersave, rot, msg,
             log2.logger.debug("Interval complete")
             
             try:
-                os.remove(oldOutputName+ '.h264') # remove the old tmp h264 file. (Had interval length time to convert it to mp4)
+                #os.remove(oldOutputName+ '.h264') # remove the old tmp h264 file. (Had interval length time to convert it to mp4)
                 if encrypt:
                     os.remove(oldOutputName+ '.mp4') # remove tmp mp4 file
             except Exception as e: 

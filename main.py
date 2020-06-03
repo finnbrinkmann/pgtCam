@@ -23,7 +23,7 @@ import logging
 
 
 try:
-    version = "0.9.9.0"
+    version = "0.9.9.1"
 
     log2.logger.info("\n\n\t#################") 
     log2.logger.info(    "\t#     Start     #")
