@@ -50,6 +50,7 @@ try:
     receiver = ""
     zero = False # to determin which LED to turn off in powersave mode
     bitrate = 17000000
+    sdcard = False
     
     bootedToRecord = True
 
@@ -70,7 +71,7 @@ try:
 
 
     configFile = "/home/pi/defaultConfig.txt"
-    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate)
+    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard)
     
     try:
         camera.rotation = rot
@@ -84,7 +85,10 @@ try:
             
             if os.path.ismount(x):
                 log2.logger.debug("Mountpunkt ist: " + str(x))
-                path = x
+                if sdcard:
+                    path = "/home/pi/rec/"
+                else
+                    path = x
                 try:
                     usb_handler = logging.FileHandler(x + 'log.txt')
                     
@@ -97,7 +101,7 @@ try:
                     log2.logger.error("Kann USB logger nicht initialisieren" + str(e))
                 try:
                     configFile = str(x) + "config.txt"
-                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero, bitrate)
+                    an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard = readConfig(configFile, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress,stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard)
                     
                 except Exception as e:
                     log2.logger.warning("Kann Datei nicht lesen " + configFile + ". Datei vorhanden? " + str(e))
@@ -254,7 +258,7 @@ try:
             try:
                 sleep(10)
                 nextPoweroff = datetime.datetime.strptime('Jun 1 2080  1:33PM', '%b %d %Y %I:%M%p') # max date in future
-                cam.recVideo(nextPoweroff, 7, 400, 300, 15, False, rot, "", False, kName, "/home/pi/rec/", True , None, False, False, 10000) #record to SD Card in
+                cam.recVideo(nextPoweroff, 7, 400, 300, 15, False, rot, "", False, kName, "/home/pi/rec/", True , None, False, False, 13000) #record to SD Card in
             except Exception as e:
                 log2.logger.error("Schwerer Fehler! Notfallaufzeichung auf die SD-Karte fehlgeschlagen!" + str(e))
             

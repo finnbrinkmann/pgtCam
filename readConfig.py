@@ -7,7 +7,7 @@ import socket
 from time import sleep
 import log2
 
-def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate):
+def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard):
 
 
     configFile = None
@@ -157,5 +157,14 @@ def readConfig(filename, an, aus, fps, rot, resX, resY, interval, powersave, ipA
                 zero = False
         except Exception as e:
             log2.logger.error("zero config.txt " + str(e))
+            
+    if "sdcard" in content:
+        try:
+            if int(content["sdcard"]) == 1:
+                sdcard = True
+            else:
+                sdcard = False
+        except Exception as e:
+            log2.logger.error("sdcard config.txt " + str(e))
 
-    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate
+    return an, aus, fps, rot, resX, resY, interval, powersave, ipAddress, stromPi, kName, bw, receiver, encrypt, zero, bitrate, sdcard

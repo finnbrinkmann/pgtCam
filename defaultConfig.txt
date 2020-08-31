@@ -1,21 +1,24 @@
 # Config Datei
 # Diese Zeile ist ein Kommentar und wird ignoriert 
 
+#####
+rotation: 0
+zero: 0
+stromPi: 0
+name: Kam0
+#####
 
 fps: 7
 
-resX: 704
+resX: 400
 
-resY: 576
+resY: 300
 
 interval: 15
 
-#####
-rotation: 180
-zero: 1
-stromPi: 1
-name: Kam5
-#####
+sdcard: 0
+
+
 
 powersave: 0
 
